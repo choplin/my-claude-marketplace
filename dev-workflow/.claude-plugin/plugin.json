@@ -1,0 +1,15 @@
+{
+  "name": "dev-workflow",
+  "description": "Development workflow helpers including Architecture Decision Records (ADR)",
+  "version": "1.0.0",
+  "author": {
+    "name": "choplin"
+  },
+  "keywords": [
+    "workflow",
+    "adr",
+    "architecture",
+    "decision",
+    "documentation"
+  ]
+}
