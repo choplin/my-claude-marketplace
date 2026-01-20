@@ -7,6 +7,10 @@ description: This skill should be used when the user wants to create a skill, im
 
 ## Relationship with plugin-dev:skill-development
 
+> [!IMPORTANT]
+> This skill is incomplete without plugin-dev:skill-development.
+> Always load both skills together when creating or improving skills.
+
 This skill complements plugin-dev:skill-development:
 
 | Component | Responsibility |
