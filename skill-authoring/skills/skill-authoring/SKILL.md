@@ -130,6 +130,11 @@ to understand it (without feedback intent), or security-specific audits
 
 ### At Step 1 (Understanding the Skill)
 
+**Interview philosophy:**
+- Ask questions that are NOT obvious - probe underlying needs and motivations
+- User can say "complete" at any time to end the interview early
+- If AI judges the intent is sufficiently clear, confirm with user before proceeding
+
 **Concrete actions:**
 - Use AskUserQuestion tool to conduct structured interview
 - Repeat AskUserQuestion until all ambiguity is resolved - there is no limit
@@ -137,26 +142,46 @@ to understand it (without feedback intent), or security-specific audits
 - Never accept vague answers - always follow up for specifics
   - Vague answers contain adjectives without measurable criteria (e.g., "clean", "good", "proper", "appropriate")
 
+**Interview techniques:**
+
+For each answer, consider these follow-up types:
+- "Why do you need that?" (uncover underlying motivation)
+- "Can you give a concrete example?" (convert abstract to specific)
+- "What alternatives did you consider?" (reveal trade-offs)
+- "When did this fail in the past?" (extract lessons learned - crucial for Principle 1)
+- "What would make this NOT applicable?" (define exclusions)
+
 **Interview rounds:**
 
 Continue each round until user's intent is fully clarified. Do not stop at a fixed number of questions.
 
-1. **Intent**
+1. **Intent & Motivation**
    - "What problem will this skill solve?"
+   - "Why is this important to you specifically?"
+   - "What happens if you don't have this skill?"
    - Follow up until the underlying need is concrete and specific
 
-2. **Use Cases**
+2. **Use Cases & Edge Cases**
    - "Walk me through a concrete example of using this skill"
+   - "What's a borderline case where you're unsure if the skill should apply?"
+   - "What would a failure look like?"
    - Follow up until you have specific input/output examples and edge cases
 
-3. **Success/Failure**
+3. **Success Criteria & Trade-offs**
    - "How would you know the skill worked correctly?"
+   - "What trade-offs are you willing to make?" (strictness vs flexibility, completeness vs simplicity)
+   - "What's the minimum viable outcome?"
    - Follow up until success criteria are binary and observable
 
-4. **Triggers**
+4. **Triggers & Context**
    - "What would you say when you want this skill to activate?"
    - "What similar requests should NOT trigger this skill?"
+   - "Are there situational factors that matter?"
    - Follow up until exclusions are clear
+
+**Completion:**
+- User can say "complete" or "done" at any time → proceed to skill creation
+- When AI judges all rounds are sufficiently clear, ask: "I think I have enough to create the skill. Ready to proceed, or is there anything else?"
 
 ### At Step 4 (Edit the Skill)
 
