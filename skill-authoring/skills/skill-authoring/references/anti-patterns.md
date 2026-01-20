@@ -6,11 +6,11 @@ Each Principle has common failure modes. Use this to detect problems in skill co
 
 | Anti-pattern | Example | Problem |
 |-------------|---------|---------|
-| Generic Advice (no user context) | "Write clean code" | AI already knows this; adds zero information |
+| Generic Advice (no experiential basis) | "Write clean code" | AI already knows this; adds no lessons from experience |
 | Missing Rationale | "Always use interfaces" | AI can't judge exceptions without knowing WHY |
 | Assumed Context | "Follow team standards" | AI doesn't know your standards |
 
-**Detection**: Rules AI already knows; adjectives without user-defined thresholds; rules without "because"; references to unspecified conventions.
+**Detection**: Rules AI already knows; adjectives without experience-based thresholds; rules without "because [specific problem occurred]"; references to unspecified conventions.
 
 ## Principle 2: Self-Complete (Success Criteria)
 

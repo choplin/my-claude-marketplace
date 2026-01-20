@@ -23,18 +23,18 @@ When creating a skill, both skills should be used together. plugin-dev:skill-dev
 **Goal**: Capture what the user wants and the context behind their decisions - not general best practices.
 
 **Key insight**: AI already knows general best practices. Writing "follow best practices" or "write clean code" adds zero information. Skills must go beyond what AI already knows to capture:
-1. **What the user specifically wants** - their preferred approach among valid alternatives
-2. **The context behind their decisions** - why they chose this approach for their situation
+1. **Lessons from experience** - judgment criteria learned from specific problems or failures
+2. **The basis for those judgments** - why a particular approach worked or didn't work in practice
 
 **The Problem with Generic Guidance**:
-- "Write clean code" - AI already knows this; adds no user-specific information
-- "Follow best practices" - AI knows many practices; which does THIS user prefer?
-- "Be concise" - AI can be concise in many ways; what trade-offs does THIS user want?
+- "Write clean code" - AI already knows this; adds no experiential insight
+- "Follow best practices" - AI knows many practices; which worked/failed in actual projects?
+- "Be concise" - AI can be concise in many ways; what trade-offs proved effective?
 
 **What Concrete Criteria Look Like**:
-- User's preferred approach: "We prioritize readability over brevity"
-- Decision context: "Because our team has many junior developers"
-- Specific rules derived from that context: "Always add explanatory comments for non-obvious logic"
+- Experience-based judgment: "We prioritize readability over brevity"
+- The problem that led to it: "Because junior developers struggled with terse code and made more bugs"
+- Rule derived from that problem: "Always add explanatory comments for non-obvious logic"
 
 **Example Transformation**:
 
@@ -53,7 +53,7 @@ Rationale: Cognitive load research shows working memory handles 7±2 items.
 ```
 This looks concrete but AI has no basis for "20 lines" - it's not from the user's experience. AI cannot judge edge cases (is 21 lines really a problem for THIS user?).
 
-Good (reflects user's specific context from interview):
+Good (reflects lessons learned from actual experience):
 ```
 Problem: When functions handle multiple concerns, changing one part often
 breaks another part unexpectedly.
@@ -65,9 +65,10 @@ Rule: Functions should have a single responsibility
   → split into validate(), calculatePrice(), updateInventory()
 ```
 
-The key difference: The rule exists because of THIS user's problem,
+The key difference: The rule exists because of actual problems encountered,
 not because "best practices say so." The interview revealed this is
-a recurring pain point - AI now understands WHY this matters to the user.
+a recurring pain point with concrete examples - AI now understands the
+experiential basis for this rule.
 
 ### Principle 2: Self-Complete (Success Criteria for Deliverables)
 
