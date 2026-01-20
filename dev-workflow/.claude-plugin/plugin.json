@@ -1,15 +1,15 @@
 {
   "name": "dev-workflow",
-  "description": "Development workflow helpers including Architecture Decision Records (ADR)",
-  "version": "1.0.0",
+  "description": "Development workflow management with task assessment, spec/plan documents, and self-review capabilities",
+  "version": "2.0.0",
   "author": {
     "name": "choplin"
   },
   "keywords": [
     "workflow",
-    "adr",
-    "architecture",
-    "decision",
-    "documentation"
+    "planning",
+    "spec",
+    "review",
+    "task-management"
   ]
 }

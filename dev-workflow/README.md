@@ -1,49 +1,47 @@
 # dev-workflow
 
-Development workflow skills for Claude Code.
+Development workflow management for Claude Code.
+
+## Overview
+
+A plugin that systematizes development workflows with Claude Code. Supports workflow branching based on task scale and work continuation across sessions.
+
+## Workflow Levels
+
+| Level | Characteristics | Recommended Approach |
+|-------|-----------------|---------------------|
+| **Task** | 1-2 hours, few files | Direct implementation with Claude Code Plan |
+| **Story** | Multiple steps, hours to days | Create spec/plan documents then implement |
+| **Epic** | Multiple stories, weeks to months | Manage stories with epic document |
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| `adr` | Create Architecture Decision Records |
-| `continuity-ledger` | Maintain context across long sessions via CONTINUITY.md |
+| `assess-task` | Assess task complexity and suggest appropriate workflow |
+| `create-epic` | Create epic document (manage multiple stories) |
+| `create-spec` | Create spec document (AI self-reviewable acceptance criteria) |
+| `create-plan` | Create implementation plan document (self-contained) |
+| `self-review` | Self-review based on acceptance criteria |
+| `post-task` | Commit preparation, knowledge capture, completion |
 
-## When Skills Activate
+## Templates
 
-- **adr**: "create an ADR", "record this decision", "document this architecture decision"
-- **continuity-ledger**: Starting complex or multi-hour work sessions
+| File | Description |
+|------|-------------|
+| `references/epic-template.md` | Epic document template |
+| `references/spec-template.md` | Spec document template |
+| `references/plan-template.md` | Plan document template |
 
-## ADR Format
+## Typical Workflow (Story Level)
 
-ADRs are stored in `docs/adr/` with format `ADR-{number}-{slug}.md`:
-
-```markdown
----
-created: YYYY-MM-DD
----
-
-# ADR-{number}: {title}
-
-## Status
-## Context
-## Decision
-## Discussion
-## Consequences
-## Alternatives
-## References
-```
-
-## Continuity Ledger
-
-The continuity-ledger skill maintains a `CONTINUITY.md` file tracking:
-
-- Goal and success criteria
-- Constraints and assumptions
-- Key decisions with rationale
-- Progress state (Done/Now/Next)
-- Open questions
-- Working set of files
+1. Assess task level with `assess-task`
+2. Create spec document with `create-spec`
+3. Create implementation plan with `create-plan`
+4. (Session can be cleared)
+5. Load plan document and implement
+6. Verify acceptance criteria with `self-review`
+7. Commit and complete with `post-task`
 
 ## Installation
 
