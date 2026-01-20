@@ -6,10 +6,12 @@ Git helper skills for Claude Code.
 
 | Skill | Description |
 |-------|-------------|
+| `draft-pr` | Push and create a draft PR |
 | `rebase-onto-rewritten` | Rebase onto force-pushed/squashed branches |
 
 ## When Skills Activate
 
+- **draft-pr**: "draft PRを作って", "draft PRを作成", "ドラフトPRを開いて"
 - **rebase-onto-rewritten**: "rebase onto rewritten", "base branch was force pushed", "squash merged base"
 
 ## Use Cases
