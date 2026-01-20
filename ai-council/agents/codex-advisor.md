@@ -23,6 +23,8 @@ description: >-
 
   Trigger phrases: "different AI perspectives", "another AI's opinion", "get other viewpoints", "ask codex", "what does codex think", "cross-check with AI".
 
+  Should NOT trigger for: troubleshooting Codex CLI errors, learning Codex CLI commands, or casual mentions of Codex without consultation intent.
+
   Do not proactively suggest using this agent.
 model: inherit
 color: cyan

@@ -4,7 +4,7 @@ Ask other AI agents for opinions during code review and discussions.
 
 ## Overview
 
-This plugin enables Claude Code to consult other AI agents (currently OpenAI Codex CLI) for alternative perspectives on code, design decisions, and technical questions.
+This plugin enables Claude Code to consult other AI agents (OpenAI Codex CLI and Google Gemini CLI) for alternative perspectives on code, design decisions, and technical questions.
 
 ## Components
 
@@ -13,6 +13,9 @@ This plugin enables Claude Code to consult other AI agents (currently OpenAI Cod
 | Skill | codex-cli | Learn how to use Codex CLI |
 | Agent | codex-advisor | Autonomously query Codex for opinions |
 | Reference | codex-reference.md | Detailed Codex CLI documentation |
+| Skill | gemini-cli | Learn how to use Gemini CLI |
+| Agent | gemini-advisor | Autonomously query Gemini for opinions |
+| Reference | gemini-reference.md | Detailed Gemini CLI documentation |
 
 ## Prerequisites
 
@@ -29,6 +32,24 @@ This plugin enables Claude Code to consult other AI agents (currently OpenAI Cod
    ```bash
    export OPENAI_API_KEY="your-api-key"
    ```
+
+### Gemini CLI
+
+1. **Install Gemini CLI**
+   ```bash
+   npm install -g @google/gemini-cli
+   ```
+
+2. **Configure authentication**
+   ```bash
+   gcloud auth application-default login
+   ```
+   or set environment variable:
+   ```bash
+   export GOOGLE_API_KEY="your-api-key"
+   ```
+
+### Additional Setup
 
 3. **Configure codex-xhigh alias** (recommended)
    ```bash
@@ -64,14 +85,24 @@ Codexにこのコードをレビューしてもらって
 Ask Codex what it thinks about this design
 ```
 
-### Get Codex CLI usage help
+### Ask Gemini for an opinion
+
+```
+Geminiにこのアーキテクチャについて聞いて
+```
+
+```
+Get Gemini's opinion on this implementation
+```
+
+### Get CLI usage help
 
 ```
 Codexの使い方を教えて
 ```
 
 ```
-How do I use codex review?
+Geminiの使い方を教えて
 ```
 
 ## Example Interactions
@@ -104,6 +135,5 @@ This plugin involves two separate sandbox mechanisms:
 
 ## Future Plans
 
-- Add support for Google Gemini
 - Add support for other AI agents
 - Enable multi-agent discussions for complex decisions
