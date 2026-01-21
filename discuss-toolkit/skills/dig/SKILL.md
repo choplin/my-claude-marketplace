@@ -1,6 +1,6 @@
 ---
 name: dig
-description: This skill should be used when the user's intent is unclear and needs to be clarified before proceeding. Triggers when AI needs to make assumptions to fill gaps, when specialized skills (like name-project) need to understand user intent first, or when user explicitly calls "/dig". Should NOT trigger for quick decisions with clear context (use quick-chat), or when requirements are already well-defined.
+description: This skill should be used when the user's intent is unclear and needs to be clarified before proceeding. Triggers when user request lacks specifics (e.g., "create X" without details), when AI would need to make assumptions to proceed, or when user explicitly calls "/dig". Also used as a base skill by other skills. Should NOT trigger for quick decisions with clear context (use quick-chat), or when requirements are already well-defined. 「意図が不明確」「曖昧な依頼」「詳細を確認したい」
 ---
 
 # dig - Intent Clarification
@@ -11,23 +11,32 @@ Dig deep to understand user intent before proceeding. Never fill gaps with assum
 
 AI tends to fill unclear intent with general best practices. This produces outputs that don't reflect the user's actual context and fail to solve real problems. This skill ensures AI understands user intent through structured interview before acting.
 
-## Base Skill Architecture
+## Invocation Patterns
 
-dig is a **base skill** invoked by other skills or directly by users.
+dig can be invoked in three ways:
 
-**How it works**:
-1. Caller provides context: what they need to clarify and why
-2. dig conducts structured interview to clarify user intent
-3. Clarified understanding remains in session context for caller to use
+### 1. AI Autonomous Invocation (Primary)
 
-**Examples**:
-- name-project calls dig to understand project goals → proceeds to generate names based on clarified context
-- User calls /dig directly → understanding confirmed, session continues with clarity
+When AI detects that user's request lacks specifics needed to proceed:
+- "Create a login feature" → What authentication method? What fields? What happens on failure?
+- "Improve performance" → Which part? What's the current bottleneck? What's acceptable?
+
+**When to invoke**: AI would need to make assumptions to fill gaps in user's request.
+
+### 2. Base Skill for Other Skills
+
+Specialized skills call dig to ensure intent clarity before their work:
+- name-project calls dig to understand project goals → proceeds to generate names
+- skill-authoring calls dig to extract experiential rationale → proceeds to write skill content
+
+### 3. Direct User Invocation
+
+User explicitly calls `/dig` when they want structured clarification.
 
 **Key implication**:
 The "never fill gaps with assumptions" principle applies to the entire workflow—
-both the clarification process AND any content the caller creates based on the result.
-If certain information remains unclarified, the caller must not fill it with general practices.
+both the clarification process AND any content created based on the result.
+If certain information remains unclarified, it must not be filled with general practices.
 
 ## Interview Structure: Axes and Subject
 
@@ -155,8 +164,3 @@ The intent clarification deliverable is complete when:
 - Requirements already documented and clear
 - User explicitly wants fast action without discussion
 
-## Integration with Other Skills
-
-This skill is called by specialized skills to ensure intent is clear before specialized work begins. For example:
-- name-project calls dig first to understand project goals before generating names
-- Other skills can invoke dig when they detect ambiguity
