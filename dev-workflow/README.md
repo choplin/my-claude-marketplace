@@ -18,12 +18,14 @@ A plugin that systematizes development workflows with Claude Code. Supports work
 
 | Skill | Description |
 |-------|-------------|
-| `assess-task` | Assess task complexity and suggest appropriate workflow |
+| `explore-needs` | Explore user needs through dialogue and route to appropriate workflow |
+| `create-task` | Create task-level plan with full Why/What context |
 | `create-epic` | Create epic document (manage multiple stories) |
 | `create-spec` | Create spec document (AI self-reviewable acceptance criteria) |
 | `create-plan` | Create implementation plan document (self-contained) |
 | `self-review` | Self-review based on acceptance criteria |
-| `post-task` | Commit preparation, knowledge capture, completion |
+| `user-review` | Facilitate structured user review with appropriate response patterns |
+| `post-task` | Capture knowledge after task completion |
 
 ## Templates
 
@@ -35,13 +37,14 @@ A plugin that systematizes development workflows with Claude Code. Supports work
 
 ## Typical Workflow (Story Level)
 
-1. Assess task level with `assess-task`
+1. Explore user needs with `explore-needs`
 2. Create spec document with `create-spec`
 3. Create implementation plan with `create-plan`
 4. (Session can be cleared)
 5. Load plan document and implement
 6. Verify acceptance criteria with `self-review`
-7. Commit and complete with `post-task`
+7. Obtain user approval with `user-review`
+8. Commit and complete with `post-task`
 
 ## Installation
 

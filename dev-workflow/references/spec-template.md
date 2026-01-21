@@ -1,37 +1,45 @@
-# Spec: {spec-name}
+# Spec: {feature-name}
 
-## Overview
+## Why (Background & Purpose)
 
-{1-2 sentence description}
+{User-confirmed background, motivation, problem to solve}
 
-## Background
+{Why this is important now - what happens if we don't do this}
 
-{Context and problems that led to this spec}
+## What (Implementation Target)
 
-## Requirements
+{User-confirmed specific implementation target}
 
-### Functional Requirements
+### Completion Criteria
 
-1. **{Requirement name}**
-   - {Details}
-
-### Non-Functional Requirements
-
-- {Non-functional requirements}
+{User-confirmed criteria for "done" - what success looks like}
 
 ## Acceptance Criteria
 
-Each criterion should be written in a format that AI can verify through self-review.
+Each criterion must be user-confirmed and AI-verifiable.
 
 1. **{Criterion name}**
-   - Given: {Preconditions}
-   - When: {Action to perform}
-   - Then: {Verifiable expected result}
+   - Given: {Preconditions - what exists/is prepared}
+   - When: {Action - specific action to perform}
+   - Then: {Verifiable result - confirmable in code or files}
 
 ## Out of Scope
 
-- {Items explicitly out of scope}
+{Items explicitly excluded - confirmed with user}
+
+- {Item 1}
+- {Item 2}
+
+## TBD Items
+
+{Items marked as unknown - to be clarified later}
+
+- {TBD item with context on why it's unknown}
 
 ## Technical Notes
 
-- {Implementation notes and technical decisions}
+{Implementation notes and technical decisions - only if user-confirmed}
+
+---
+
+**Note**: Every item in this spec should be traceable to user confirmation. Items marked with [AI suggestion] require explicit user approval before implementation.

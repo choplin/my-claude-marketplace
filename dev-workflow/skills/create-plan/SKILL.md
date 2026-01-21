@@ -1,76 +1,122 @@
 ---
 name: create-plan
-description: Use this skill when creating an implementation plan for a story. Triggers on phrases like "create a plan", "plan the implementation", "how should I implement this", or after a spec has been created.
-allowed-tools: Read, Write, Glob, Grep
-file-references:
-  - ${CLAUDE_PLUGIN_ROOT}/references/plan-template.md
+description: This skill is invoked ONLY after create-spec completes. Should NOT be invoked directly by user or auto-triggered by AI. Creates implementation plan document based on spec.
+allowed-tools: Read, Write, Glob, Grep, AskUserQuestion
+user-invocable: false
 ---
 
 # Create Plan Document
 
 Create an implementation plan document based on a spec.
 
-## Prerequisites
+## Purpose
 
-- Spec document exists (`docs/spec-{name}.md`)
+Three core functions:
+1. **Implementation steps**: Organize How into sequential steps
+2. **Change locations**: Identify which files to modify
+3. **Progress tracking**: Track completion of steps during implementation
 
-## When to Use
+## Detail Level
 
-- After spec has been created
-- When you want to organize implementation order and steps
-- When continuing work across sessions
+Plan should contain **steps and files only**:
+- What to do (step description)
+- Which files to change
+
+**Why this level?**
+- **Focus on direction**: AI is capable enough that if it knows what to do, it can handle implementation. Plan should focus on direction and goal.
+- **Flexibility**: Too much detail makes the plan brittle/fragile - implementation often evolves differently
+- **Review cost**: More detail means more to review (same problem as create-spec)
+
+**Exception**: For repetitive tasks, few-shot examples can be included to guide implementation style.
+
+Plan should NOT contain:
+- Specific code changes
+- Function/class level details
+- Implementation code snippets
+
+## Input
+
+This skill is invoked after create-spec completes. The spec document at `.claude/dev-workflow/story/{name}/spec.md` is the input.
 
 ## Process
 
-### 1. Review Spec
+### 1. Read Spec
 
-Load the related spec document:
-- Understand requirements
-- Confirm acceptance criteria
-- Note technical notes
+Load the spec document and understand:
+- Why: Background and motivation
+- What: Requirements and acceptance criteria
+- Out of Scope: What NOT to do
 
 ### 2. Investigate Codebase
 
 Gather information needed for implementation:
 - Existing code structure
 - Files that need changes
-- Existing patterns to reference
+- Existing patterns to follow
 
 ### 3. Design Implementation Steps
 
-Follow these principles:
-- **Dependency-aware ordering**: Start with prerequisites
-- **Appropriate granularity**: 1 step = 1 clear deliverable
-- **Verifiable**: Each step completion can be confirmed
+Create steps following these principles:
+- **Dependency-aware**: Start with prerequisites
+- **One deliverable per step**: Each step produces a clear result
+- **Verifiable**: Completion can be confirmed
 
 ### 4. Create Plan Document
 
-Create `docs/plan-{name}.md`:
-- Include reference to spec
-- List files to change
-- Implementation steps
-- Progress checklist
+Create `.claude/dev-workflow/story/{name}/plan.md`:
 
-## Template
+```markdown
+# Plan: {title}
 
-See `references/plan-template.md` for the template.
+## Related Files
 
-## Self-Contained Document
+- **Workflow concepts**: `dev-workflow/docs/workflow-concepts.md`
+- **Spec**: `.claude/dev-workflow/story/{name}/spec.md`
+- **Epic**: `.claude/dev-workflow/epic/{parent}/epic.md` (if part of an Epic)
 
-Plan document should be **self-contained**:
+## Approach
+{High-level implementation approach}
 
-- Implementation can start without conversation history
-- Work can continue by just reading the plan document in a new session
-- All necessary information is included in the plan document
+## Files to Change
 
-## Output
+| File | Change |
+|------|--------|
+| `path/to/file` | {brief description} |
 
-- `docs/plan-{name}.md` file
-- Ready to start implementation
+## Steps
 
-## After Creating Plan
+### Step 1: {name}
+{What to do}
 
-After plan creation:
-1. Session can be cleared
-2. Load plan document and start implementation
-3. Update progress section as you work
+### Step 2: {name}
+{What to do}
+
+## Progress
+
+- [ ] Step 1
+- [ ] Step 2
+
+## Notes
+{Decisions made during planning, if any}
+```
+
+### 5. User Review
+
+Present plan to user for approval before proceeding.
+
+## Success Criteria
+
+- [ ] Plan document is created at `.claude/dev-workflow/story/{name}/plan.md`
+- [ ] Spec is referenced
+- [ ] Files to change are listed
+- [ ] Steps are in dependency order
+- [ ] Progress checklist exists
+- [ ] Implementation can start by reading plan alone (/clear and go)
+- [ ] User has approved the plan
+
+## Next Action
+
+After plan is approved:
+- Session can be cleared
+- Load spec + plan and start implementation
+- Update Progress section as steps complete

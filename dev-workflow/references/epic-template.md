@@ -26,7 +26,7 @@
 
 | Story | Status | Spec | Plan |
 |-------|--------|------|------|
-| {story-name} | Not Started/In Progress/Done | `docs/spec-{name}.md` | `docs/plan-{name}.md` |
+| {story-name} | Not Started/In Progress/Done | `.claude/dev-workflow/story/{name}/spec.md` | `.claude/dev-workflow/story/{name}/plan.md` |
 
 ## Technical Constraints
 

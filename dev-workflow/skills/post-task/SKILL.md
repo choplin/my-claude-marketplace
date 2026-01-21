@@ -1,102 +1,100 @@
 ---
 name: post-task
 description: Use this skill after completing implementation and review. Triggers on phrases like "task complete", "finish up", "wrap up this task", "commit and document", or after self-review passes.
-allowed-tools: Read, Write, Edit, Glob, Bash(git commands, ls, mkdir)
+allowed-tools: Read, Write, Edit, Glob, Grep
+user-invocable: false
 ---
 
-# Post-Task Processing
+# Post Task
 
-Complete a task with commit, knowledge capture, and cleanup.
+Capture knowledge from the completed task. This is the final step after commit.
 
-## Prerequisites
+## Purpose
 
-- Implementation is complete
-- Self-review shows PASS (or only NEEDS REVIEW)
+Preserve valuable learnings from the session before they are lost to session clear.
 
-## When to Use
+## Trigger
 
-- When implementation and review are complete
-- When you want to create a commit
-- When you want to record learnings
+After commit is completed. The workflow is:
+
+```
+self-review → user review → commit → post-task
+```
 
 ## Process
 
-### 1. Prepare Commit
+### 1. Session Review
 
-Review changes:
-- Check changed files with `git status`
-- Review changes with `git diff`
-- Create appropriate commit message
+Review what happened during the session to identify knowledge worth preserving:
 
-**Commit message format**:
-```
-type(scope): description
+- External information researched (sources matter)
+- Patterns that appeared 2+ times in the session
+- Domain knowledge shared by user
+- Project-specific conventions discovered
+- Decisions made during implementation
+- Specs/plans with lasting value
 
-- detail 1
-- detail 2
-```
+### 2. Propose Knowledge Capture
 
-types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
+Present a list of items to capture, categorized by type:
 
-### 2. Determine Knowledge Capture
+| Signal | Proposal | Destination |
+|--------|----------|-------------|
+| Researched external information | Capture with sources | CLAUDE.md or Skill |
+| Same workflow appeared 2+ times | Package as Skill | Skill |
+| User shared domain knowledge | Make reusable | Skill |
+| Project-specific knowledge or code snippets | Document | CLAUDE.md |
+| Decision future developers should know | Create ADR | docs/adr/ |
+| Spec/plan has lasting value | Preserve as Design Doc | docs/ |
 
-Suggest creating an ADR if any of the following apply:
+### 3. User Approval
 
-- **Important technical decisions**: Architecture, library selection, design patterns
-- **Trade-offs**: Cases where alternatives were considered and a choice was made
-- **Future impact**: Decisions that affect future development
+Present the proposal list. User selects which items to capture.
 
-If ADR is needed, create in `docs/adr/`.
+### 4. Execute
 
-### 3. Update Plan Progress
+For each approved item:
 
-If plan document exists:
-- Check off completed steps
-- Update discoveries section
+- **Skill**: Invoke skill-authoring skill for proper skill creation
+- **CLAUDE.md**: Append to appropriate section
+- **ADR**: Create in docs/adr/ following ADR format
+- **Design Doc**: Copy spec/plan to docs/ with appropriate naming
 
-### 4. Suggest Additional Actions
-
-Suggest as needed:
-- [ ] Update documentation (README, etc.)
-- [ ] Add tests
-- [ ] Create PR
-- [ ] Start next story
-
-## ADR Template
+## Output Format
 
 ```markdown
+## Knowledge Capture Proposal
+
+Based on this session, I recommend capturing the following:
+
+### Skill Candidates
+
+1. **{topic}**: {why it should be a skill}
+   - Source: {where this knowledge came from}
+
+### CLAUDE.md Additions
+
+1. **{topic}**: {what to add}
+   - Section: {target section in CLAUDE.md}
+
+### ADR Candidates
+
+1. **{decision}**: {why it's worth recording}
+   - Context: {what led to this decision}
+
+### Design Doc Candidates
+
+1. **{spec/plan}**: {why it has lasting value}
+   - Location: `.claude/dev-workflow/story/{name}/spec.md`
+
 ---
-created: YYYY-MM-DD
----
 
-# ADR-{number}: {title}
-
-## Status
-
-Accepted
-
-## Context
-
-{Background}
-
-## Decision
-
-{Decision details}
-
-## Consequences
-
-{Impact and results}
+Which items would you like me to capture?
 ```
 
-## Output
+## Success Criteria
 
-1. Create commit (after user confirmation)
-2. Create ADR (if needed)
-3. Update plan progress
-4. Suggest next actions
-
-## Important
-
-- Execute commit after user confirmation
-- Only create ADRs for important decisions (don't over-create)
-- Always update plan document progress
+- [ ] All valuable learnings from session are identified
+- [ ] Each proposal includes rationale (why it's worth capturing)
+- [ ] User can select which items to capture
+- [ ] Selected items are properly created in their destinations

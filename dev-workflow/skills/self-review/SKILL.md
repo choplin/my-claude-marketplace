@@ -1,86 +1,108 @@
 ---
 name: self-review
-description: Use this skill when reviewing implementation against acceptance criteria. Triggers on phrases like "review my implementation", "check if I'm done", "verify acceptance criteria", or after completing implementation work.
-allowed-tools: Read, Glob, Grep, Bash(test commands, build commands)
+description: This skill is invoked automatically after implementation completes. Should NOT be invoked directly by user. Reviews implementation against spec's acceptance criteria and provides actionable feedback for self-correction.
+allowed-tools: Read, Glob, Grep, Bash
+user-invocable: false
 ---
 
 # Self Review
 
-Review implementation against spec's acceptance criteria.
+Review implementation against spec's acceptance criteria. This is AI's feedback loop for self-correction.
 
-## Prerequisites
+## Purpose
 
-- Spec document exists (`docs/spec-{name}.md`)
-- Implementation is complete
+Three core functions:
+1. **Acceptance criteria verification**: Check each criterion from spec
+2. **Implementation quality confirmation**: Verify the implementation meets requirements
+3. **Completion judgment**: Determine if ready for user review
 
-## When to Use
+## Input
 
-- When implementation appears to be complete
-- When you want to verify acceptance criteria are met
-- Self-check before creating a PR
+- Spec document at `.claude/dev-workflow/story/{name}/spec.md`
+- Completed implementation
 
 ## Process
 
-### 1. Load Spec Document
+### 1. Load Spec
 
-Load the related spec document and extract acceptance criteria.
+Load the spec document and extract:
+- Acceptance criteria (Given-When-Then)
+- Out of Scope (to avoid checking irrelevant items)
 
 ### 2. Verify Each Criterion
 
 For each acceptance criterion:
 
 1. **Check Given**: Are preconditions satisfied?
-2. **Execute When**: Perform the described action (or review code)
-3. **Verify Then**: Determine if result matches expectation
+2. **Execute When**: Perform the described action (run tests, check code)
+3. **Verify Then**: Does result match expectation?
 
 ### 3. Determine Result
 
-For each criterion, determine one of:
-
+For each criterion:
 - **PASS**: Expected result is satisfied
-- **FAIL**: Expected result is not satisfied
-- **NEEDS REVIEW**: Cannot be determined by AI alone (requires user confirmation)
+- **FAIL**: Expected result is NOT satisfied - include what's wrong and how to fix
+- **NEEDS REVIEW**: Cannot be determined by AI (requires user judgment)
 
-## Verification Methods
+### 4. Self-Correct (if FAIL)
 
-Verification methods by criterion type:
+This is a feedback loop. If FAIL exists:
+1. Fix the identified issue
+2. Re-run self-review
+3. Repeat until all PASS or NEEDS REVIEW
 
-| Criterion Type | Verification Method |
-|----------------|---------------------|
-| File creation | Confirm with Glob/Read |
-| Code changes | Confirm with Grep/Read |
-| Functionality | Run tests, check build |
-| UI/UX | NEEDS REVIEW (user judgment) |
+**Escalation rule**: If the same FAIL occurs twice consecutively, promote it to NEEDS REVIEW.
+
+**Rationale**: If AI cannot fix an issue after one attempt, continuing to retry won't help. The issue likely requires user judgment or clarification that AI cannot provide.
 
 ## Output Format
+
+Output must be actionable for self-correction:
 
 ```markdown
 ## Self Review Results
 
-**Spec**: `docs/spec-{name}.md`
-**Date**: YYYY-MM-DD
+**Spec**: `.claude/dev-workflow/story/{name}/spec.md`
 
 ### Results
 
-| # | Criterion | Result | Notes |
-|---|-----------|--------|-------|
-| 1 | {Criterion name} | PASS/FAIL/NEEDS REVIEW | {Details} |
-| 2 | {Criterion name} | PASS/FAIL/NEEDS REVIEW | {Details} |
+| # | Criterion | Result | Details |
+|---|-----------|--------|---------|
+| 1 | {name} | PASS | {verification method used} |
+| 2 | {name} | FAIL | **Problem**: {what's wrong} / **Fix**: {how to fix} |
+| 3 | {name} | NEEDS REVIEW | {why AI cannot determine} |
 
 ### Summary
 
-- PASS: X items
-- FAIL: X items
-- NEEDS REVIEW: X items
+- PASS: X
+- FAIL: X
+- NEEDS REVIEW: X
 
-### Next Actions
+### Next Action
 
-- {If FAIL exists, what to fix}
-- {If NEEDS REVIEW exists, questions for user}
+{If FAIL: specific fix to apply}
+{If all PASS: ready for user review}
+{If NEEDS REVIEW: questions for user}
 ```
 
-## After Review
+## Verification Methods
 
-- **All PASS**: Proceed to `post-task` skill for completion
-- **FAIL exists**: Fix and re-run self-review
-- **NEEDS REVIEW exists**: Request user confirmation
+| Criterion Type | Method |
+|----------------|--------|
+| File exists | Glob/Read |
+| Code contains X | Grep/Read |
+| Tests pass | Bash (run tests) |
+| Build succeeds | Bash (run build) |
+| UI/UX behavior | NEEDS REVIEW |
+
+## Success Criteria
+
+- [ ] All acceptance criteria from spec are checked
+- [ ] Each FAIL includes problem description AND fix instruction
+- [ ] Feedback loop continues until no FAIL remains
+- [ ] Ready to proceed to user review (all PASS or only NEEDS REVIEW)
+
+## Next Action
+
+- **All PASS or NEEDS REVIEW only**: Proceed to `user-review` skill (user approval required before post-task)
+- **FAIL exists**: Fix and re-run self-review (feedback loop)

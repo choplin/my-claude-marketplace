@@ -1,78 +1,149 @@
 ---
 name: create-spec
-description: Use this skill when creating a specification document for a story. Triggers on phrases like "create a spec", "write a specification", "document the requirements", or when starting a story-level task.
-allowed-tools: Read, Write, Glob, Grep
-file-references:
-  - ${CLAUDE_PLUGIN_ROOT}/references/spec-template.md
+description: This skill is invoked ONLY from explore-needs when Story-level work is identified. Should NOT be invoked directly by user or auto-triggered by AI. Creates spec document with requirements and acceptance criteria.
+allowed-tools: Read, Write, Glob, Grep, AskUserQuestion
+user-invocable: false
 ---
 
 # Create Spec Document
 
-Create a specification document with AI-verifiable acceptance criteria.
+Create a specification document that captures requirements and acceptance criteria for Story-level work.
 
-## When to Use
+## Purpose
 
-- Starting a story-level task
-- When multiple implementation steps are needed
-- When you want to clarify acceptance criteria
-- When work may span across sessions
+Create a spec document that captures What and Why for Story-level work.
+
+### What Spec Is NOT
+
+Spec is **NOT** an exhaustive specification. It does not aim for:
+- Complete coverage of all edge cases
+- Trivial validation checks
+- Rare corner case handling
+
+These are implementation details to be addressed during the implementation phase.
+
+### What Spec IS
+
+Spec aims to **keep focus on task purpose**. It captures:
+- **Why**: The motivation and problem being solved
+- **What**: User Needs expressed as MECE requirements
+- **Criteria**: Verifiable acceptance criteria (few, focused)
+
+The spec survives /clear as the sole source of truth for the next session.
+
+## Critical Rule: Fewer Criteria is Better
+
+**Problem from experience**: When AI generates acceptance criteria, it tends to create many items. This leads to:
+1. Review cost increases
+2. User skips review due to volume
+3. Implementation proceeds with criteria that don't reflect user intent
+
+**Rule**: Requirements and Criteria should be as few as possible while still covering User Needs.
+- Ask: "Is this criterion essential to verify the User Need is met?"
+- If not essential, don't include it
+- Prefer 3-5 focused criteria over 10+ comprehensive ones
+
+## Input
+
+This skill receives Why/What context from explore-needs interview via session history.
 
 ## Process
 
-### 1. Organize Requirements
+### 1. Confirm Why/What from explore-needs
 
-Confirm the following:
-- What to accomplish (Goal)
-- Why it's needed (Background)
-- How far to go (Scope)
-- Technical constraints
+Review the interview results:
+- **Why**: Background, motivation, problem being solved
+- **What**: User Needs to satisfy
 
-### 2. Design Acceptance Criteria
+If unclear, ask for clarification.
 
-Write in **AI self-review verifiable format**:
+### 2. Organize Requirements
 
-```markdown
-1. **{Criterion name}**
-   - Given: {Preconditions - what exists/is prepared}
-   - When: {Action - specific action to perform}
-   - Then: {Verifiable result - confirmable in code or files}
+Expand User Needs into specific Requirements:
+- What the system must do (functional)
+- Constraints it must satisfy (non-functional)
+
+Keep requirements minimal. Only include what's necessary for User Needs.
+
+### 3. Define Acceptance Criteria (Gherkin)
+
+**Why Gherkin?**: Adopting a well-established format eliminates ambiguity about methodology and clarifies expectations.
+
+Write each criterion in Given-When-Then format:
+
+```gherkin
+Scenario: {Criterion name}
+  Given {Preconditions - what exists/is prepared}
+  When {Action - specific action to perform}
+  Then {Verifiable result - confirmable in code or files}
 ```
 
-**Good example**:
-```markdown
-1. **Login functionality works**
-   - Given: User is on the login page
-   - When: Enter correct email and password and click login button
-   - Then: Redirected to dashboard and username is displayed
+**Example**:
+```gherkin
+Scenario: Successful login
+  Given user is on the login page
+  When user enters valid credentials and clicks login
+  Then user is redirected to dashboard with username displayed
 ```
 
-**Bad example**:
+Each criterion must be:
+- **Verifiable**: AI can determine PASS/FAIL by checking code or files
+- **User-confirmed**: Traceable to user statement
+- **Essential**: Necessary to verify User Need is met
+
+### 4. Define Out of Scope
+
+Explicitly state what this spec does NOT include. This prevents scope creep during implementation.
+
+### 5. Create Spec Document
+
+Create `.claude/dev-workflow/story/{name}/spec.md`:
+
 ```markdown
-1. Implement login functionality
+# Spec: {title}
+
+## Related Files
+
+- **Workflow concepts**: `dev-workflow/docs/workflow-concepts.md`
+- **Epic**: `.claude/dev-workflow/epic/{parent}/epic.md` (if part of an Epic)
+
+## Why
+{Background, motivation, problem being solved - from explore-needs interview}
+
+## What
+{User Needs to satisfy - from explore-needs interview}
+
+## Requirements
+{Specific requirements derived from User Needs}
+
+## Acceptance Criteria
+
+### Scenario: {name}
+- Given: {preconditions}
+- When: {action}
+- Then: {verifiable result}
+
+## Out of Scope
+{What this spec explicitly does NOT include}
+
+## TBD
+{Items that need clarification later, if any}
 ```
-(Verification method is unclear)
 
-### 3. Create Spec Document
+### 6. User Review
 
-Create `docs/spec-{name}.md`:
-- Follow the template
-- Make acceptance criteria specific and verifiable
-- Explicitly state what's out of scope
+Present spec to user for approval before proceeding.
 
-## Template
+## Success Criteria
 
-See `references/spec-template.md` for the template.
+- [ ] Why/What from explore-needs is captured
+- [ ] Requirements are MECE relative to User Needs (see Purpose for what spec is NOT)
+- [ ] Acceptance criteria are in Gherkin format
+- [ ] Acceptance criteria are few and focused (prefer 3-5 over 10+)
+- [ ] Each criterion is verifiable by AI: Can identify specific file(s) or code section(s) to check for PASS/FAIL. If no verification target can be named, the criterion is not verifiable.
+- [ ] Out of Scope is explicitly stated
+- [ ] User has approved the spec
 
-## Acceptance Criteria Guidelines
+## Next Action
 
-Acceptance criteria should satisfy:
-
-1. **Specific**: Avoid vague expressions
-2. **Verifiable**: AI can determine by checking code or files
-3. **Independent**: Each criterion can be verified individually
-4. **Complete**: Covers all requirements
-
-## Output
-
-- `docs/spec-{name}.md` file
-- Suggest creating plan as next action
+After spec is approved, suggest creating implementation plan using `create-plan` skill.

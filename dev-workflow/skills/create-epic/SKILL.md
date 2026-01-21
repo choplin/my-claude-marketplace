@@ -1,57 +1,98 @@
 ---
 name: create-epic
-description: Use this skill when creating an epic document for a large-scale project. Triggers on phrases like "create an epic", "start a new epic", "this is a big project", or when a task is assessed as epic-level.
-allowed-tools: Read, Write, Glob
-file-references:
-  - ${CLAUDE_PLUGIN_ROOT}/references/epic-template.md
+description: This skill is invoked ONLY from explore-needs when Epic-level work is identified. Should NOT be invoked directly by user or auto-triggered by AI. Creates epic document by decomposing large work into independent Stories.
+allowed-tools: Read, Write, Glob, Grep, AskUserQuestion
+user-invocable: false
 ---
 
 # Create Epic Document
 
-Create an epic document for large-scale projects that span multiple stories.
+Decompose large work into independent Stories and create an epic document.
 
-## When to Use
+## Purpose
 
-- Projects that can be decomposed into multiple independent stories
-- Large undertakings spanning weeks to months
-- Work involving architecture changes
-- Long-term projects requiring progress tracking
+The core purpose is **Story decomposition** - breaking down large work into independent Stories that can be implemented in separate sessions.
+
+Epic documents are NOT primarily for:
+- Requirements organization (that's what spec does)
+- Progress tracking (that's a side effect)
+
+## Input
+
+This skill receives Why/What context from explore-needs interview via session history.
+
+## Story Independence Criteria
+
+A Story is independent when:
+1. **Can be implemented in a separate session** - After /clear, this Story alone provides enough context
+2. **What can be expressed in one sentence** - If you need multiple sentences, consider splitting
+
+**Key question**: "Can I start working on this Story without waiting for another Story to complete?"
+- Yes → Independent
+- No → Has dependency (document it)
 
 ## Process
 
-### 1. Gather Information
+### 1. Confirm Why/What from explore-needs
 
-Confirm the following:
-- Project purpose and goals
-- Scope of features and changes to include
-- Technical constraints and assumptions
-- Identified risks
+Review the interview results:
+- **Why**: Background, motivation, problem being solved
+- **What**: High-level goal to achieve
 
-### 2. Story Decomposition
+If unclear, ask for clarification before proceeding.
 
-Break down the epic into independent stories:
-- Each story can be implemented independently
-- Each story has clear completion criteria
-- Note order if there are dependencies
+### 2. Decompose into Stories
 
-### 3. Create Epic Document
+For each potential Story, verify:
+- [ ] Can be implemented in a separate session
+- [ ] What is expressible in one sentence
 
-Create `docs/epic-{name}.md`:
-- Follow the template
-- Include story list
-- Prepare links to spec/plan for each story
+If a Story fails these checks, split it further.
 
-## Template
+### 3. Identify Dependencies
 
-See `references/epic-template.md` for the template.
+For each Story, ask: "Does this require another Story to be completed first?"
+- If yes, document the dependency
+- If no, mark as independent
 
-## Output
+### 4. Create Epic Document
 
-- `docs/epic-{name}.md` file
-- Suggest creating spec for the first story as next action
+Create `.claude/dev-workflow/epic/{name}/epic.md`:
 
-## Important
+```markdown
+# Epic: {title}
 
-- Prioritize story independence
-- Size each story to be completable in 1-2 days
-- Split out parts with high uncertainty as separate stories
+## Overview
+{What this epic achieves}
+
+## Background
+{Why this epic is needed}
+
+## Goal
+{Desired end state}
+
+## Stories
+
+| # | Story | Status | Dependencies |
+|---|-------|--------|--------------|
+| 1 | {story-name} | Not Started | - |
+| 2 | {story-name} | Not Started | #1 |
+
+## Out of Scope
+{What this epic does NOT include}
+
+## References
+{Related links}
+```
+
+### 5. Suggest Next Action
+
+Identify the first Story with no dependencies and suggest starting create-spec for it.
+
+## Success Criteria
+
+- [ ] Why/What from explore-needs is captured in Overview/Background/Goal
+- [ ] Each Story can be implemented in a separate session
+- [ ] Each Story's What is expressible in one sentence
+- [ ] Dependencies between Stories are documented
+- [ ] Next Story to start is identified (one with no dependencies)
