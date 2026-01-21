@@ -134,12 +134,12 @@ to understand it (without feedback intent), or security-specific audits
 
 Load `discuss-toolkit:dig` and provide context:
 - **Subject**: "skill requirements for [skill name]"
-- **Additional items to clarify**:
-  - Trigger conditions (when should this skill activate?)
-  - Success criteria (how to know the skill worked?)
-  - Exclusions (when should this skill NOT activate?)
+- **Context for dig**: Creating a skill that satisfies Three Principles requires understanding:
+  1. User's experiential rationale (not generic best practices) - lessons learned from specific problems or failures
+  2. Binary/observable success criteria for the deliverable
+  3. Intent-based trigger conditions with clear exclusions
 
-dig will apply its three axes (Intent & Motivation, Use Cases, Constraints) to each item.
+dig will dynamically determine what questions to ask based on user responses and the above context. Do NOT prescribe specific questions like "What are the trigger conditions?" - let dig explore the subject naturally through its three axes (Intent & Motivation, Use Cases & Edge Cases, Constraints & Priorities).
 
 **After dig completes, verify Three Principles are covered:**
 

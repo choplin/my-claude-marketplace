@@ -39,25 +39,27 @@ dig provides three **axes** (perspectives) to clarify intent:
 The **subject** (what to clarify) comes from the caller's context.
 
 **How axes and subject work together**:
-- Caller specifies the subject and any additional items to clarify
-- dig applies all three axes to the subject and each additional item
-- Each axis reveals different aspects of the same subject
+- Caller specifies the subject and context (what needs to be clarified and why)
+- dig dynamically constructs questions based on user responses and the provided context
+- Each axis is applied as needed to explore different aspects of the subject
+
+**Important**: Callers provide the **purpose and context** (e.g., "need to understand experiential rationale, success criteria, and trigger conditions"), NOT specific questions to ask. dig determines the actual questions dynamically based on how the conversation unfolds.
 
 **Example**:
 ```
 Caller context: "Creating a skill for code review"
 Subject: "code review skill requirements"
-Additional items: "trigger conditions", "success criteria"
+Context: Need to understand experiential rationale (lessons from past failures),
+         binary success criteria, and intent-based triggers
 
-dig applies axes:
+dig dynamically explores through axes:
 - Intent & Motivation → Why do you need a code review skill? What problem does it solve?
-- Use Cases & Edge Cases → Walk through a concrete code review scenario. What's a borderline case?
-- Constraints & Priorities → What trade-offs would you accept? What must be avoided?
+- (Based on response) → When did code reviews fail in the past? What happened?
+- Use Cases & Edge Cases → Walk through a concrete code review scenario.
+- (Based on response) → What's a borderline case where you're unsure if this skill should trigger?
+- Constraints & Priorities → What trade-offs would you accept?
 
-Then for "trigger conditions":
-- Intent & Motivation → Why is it important to trigger at the right time?
-- Use Cases & Edge Cases → What would you say when you want this skill? What should NOT trigger it?
-- Constraints & Priorities → Are there situational factors that matter?
+Questions adapt based on user responses - not predetermined from caller's context.
 ```
 
 ## Core Rule: Never Assume, Always Ask
