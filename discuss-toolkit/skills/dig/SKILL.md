@@ -29,6 +29,37 @@ The "never fill gaps with assumptions" principle applies to the entire workflow�
 both the clarification process AND any content the caller creates based on the result.
 If certain information remains unclarified, the caller must not fill it with general practices.
 
+## Interview Structure: Axes and Subject
+
+dig provides three **axes** (perspectives) to clarify intent:
+1. **Intent & Motivation** - WHY is this needed?
+2. **Use Cases & Edge Cases** - HOW will it be used concretely?
+3. **Constraints & Priorities** - WHAT limits exist, what matters most?
+
+The **subject** (what to clarify) comes from the caller's context.
+
+**How axes and subject work together**:
+- Caller specifies the subject and any additional items to clarify
+- dig applies all three axes to the subject and each additional item
+- Each axis reveals different aspects of the same subject
+
+**Example**:
+```
+Caller context: "Creating a skill for code review"
+Subject: "code review skill requirements"
+Additional items: "trigger conditions", "success criteria"
+
+dig applies axes:
+- Intent & Motivation → Why do you need a code review skill? What problem does it solve?
+- Use Cases & Edge Cases → Walk through a concrete code review scenario. What's a borderline case?
+- Constraints & Priorities → What trade-offs would you accept? What must be avoided?
+
+Then for "trigger conditions":
+- Intent & Motivation → Why is it important to trigger at the right time?
+- Use Cases & Edge Cases → What would you say when you want this skill? What should NOT trigger it?
+- Constraints & Priorities → Are there situational factors that matter?
+```
+
 ## Core Rule: Never Assume, Always Ask
 
 When information is missing:
