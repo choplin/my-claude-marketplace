@@ -1,12 +1,19 @@
 ---
 name: quick-chat
-description: Use this skill when the user wants quick, honest feedback on comparisons, decisions, or ideas. Triggers on phrases like "what do you think about", "A vs B", "should I use", "which is better", "give me honest feedback", or when the user needs a direct recommendation.
+description: This skill should be used when the user wants quick, honest feedback on comparisons, decisions, or ideas where context is already clear. Triggers on phrases like "what do you think about", "A vs B", "should I use", "which is better", "give me honest feedback", or when the user needs a direct recommendation. Should NOT trigger when user's intent is unclear or when deep exploration is needed (use dig skill instead).
 allowed-tools:
 ---
 
 # Quick Chat
 
 Provide focused, practical conversations with honest, constructive feedback. No flattery, just straightforward advice.
+
+## When to Use This vs dig
+
+- **quick-chat**: Context is clear, user wants fast judgment
+- **dig**: Intent is unclear, needs exploration before action
+
+If during quick-chat you realize context is ambiguous, switch to dig.
 
 ## Purpose
 
