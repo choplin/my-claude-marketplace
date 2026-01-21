@@ -1,6 +1,6 @@
 ---
 name: skill-authoring
-description: This skill should be used when the user wants to create a skill, improve an existing skill, or ensure a skill produces expected results. Triggers on "create a skill", "skill isn't working", "AI doesn't follow the skill", "improve skill quality", "my skill doesn't trigger", "the AI ignores my skill", "write better skill content". Works together with plugin-dev:skill-development which handles file structure and formatting. This skill focuses on content quality. Should NOT trigger for plugin structure questions (use plugin-structure), command creation (use command-development), or agent creation (use agent-development).
+description: This skill should be used when the user wants to create a skill, improve an existing skill, or ensure a skill produces expected results. Triggers on "create a skill", "improve this skill", "skill isn't working", "fix this skill", "スキルを作りたい", "スキルを改善", "スキルを修正", "スキルがうまく動かない". Works together with plugin-dev:skill-development which handles file structure and formatting. This skill focuses on content quality. Should NOT trigger for plugin structure questions (use plugin-structure), command creation (use command-development), or agent creation (use agent-development).
 ---
 
 # Skill Authoring: Content Quality Guide
