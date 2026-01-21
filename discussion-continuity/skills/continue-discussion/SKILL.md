@@ -43,6 +43,10 @@ Clarify → Draft → Review → Approval
 2. Use AskUserQuestion: "Is this understanding correct?"
 3. If misalignment found, clarify until aligned
 
+**Alignment indicators**:
+- Aligned: User says "yes", "correct", "exactly", "その通り" without additions
+- Misaligned: User says "not quite", "actually", "well...", corrects facts, adds information, or asks "where did you get that?"
+
 ### Step 2: Draft
 
 **Why**: Preserve discussion state in a retrievable format.
@@ -79,12 +83,19 @@ Before presenting the document to the user, verify:
 1. Give the saved document to a subagent (Task tool with Explore agent)
 2. Ask subagent: "From this document alone, explain: the discussion goal, what has been decided, what questions are open, and what is the current state"
 3. Compare subagent's understanding with your own context
-4. If mismatch: identify missing information, update document, re-review
-5. Mismatch indicators:
-   - Subagent cannot identify the discussion goal
-   - Subagent lists a decision but cannot explain WHY
-   - Subagent says "I don't have enough information"
-   - Subagent's summary contradicts your understanding
+
+**Pass threshold**: Subagent correctly answers all 4 questions:
+1. Discussion goal - matches your understanding of purpose
+2. Decided points - lists all decisions with their rationales
+3. Open questions - lists all unresolved items
+4. Current state - explains what's actively being discussed
+
+**Fail condition** (update document and re-review if any):
+- Subagent cannot identify the discussion goal
+- Subagent lists a decision but cannot explain WHY
+- Subagent misses any decided point
+- Subagent says "I don't have enough information"
+- Subagent's summary contradicts your understanding
 
 ### Step 4: Approval
 
@@ -140,9 +151,8 @@ created-by: continue-discussion skill
 - `path/to/file.md` - {why referenced}
 - https://example.com - {why referenced}
 
-## What We've Learned
-- {Insight gained from this discussion}
-- {Important realization or discovery}
+## What We've Learned (optional)
+- {Insight gained from this discussion - include only if meaningful insights emerged}
 
 ## Current State
 
