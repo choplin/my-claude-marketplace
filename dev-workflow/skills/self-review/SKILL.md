@@ -1,104 +1,125 @@
 ---
 name: self-review
-description: This skill is invoked automatically after implementation completes. Should NOT be invoked directly by user. Reviews implementation against spec's acceptance criteria and provides actionable feedback for self-correction.
-allowed-tools: Read, Glob, Grep, Bash
+description: This skill is invoked automatically after implementation completes. Should NOT be invoked directly by user. Orchestrates three parallel reviews (acceptance criteria, plan compliance, code quality) and provides unified feedback for self-correction.
+allowed-tools: Read, Glob, Grep, Bash, Task
 user-invocable: false
 ---
 
 # Self Review
 
-Review implementation against spec's acceptance criteria. This is AI's feedback loop for self-correction.
+Orchestrate comprehensive review of implementation through parallel execution of specialized reviewers.
 
 ## Purpose
 
-Three core functions:
-1. **Acceptance criteria verification**: Check each criterion from spec
-2. **Implementation quality confirmation**: Verify the implementation meets requirements
-3. **Completion judgment**: Determine if ready for user review
+Three parallel reviews for complete coverage:
+1. **Acceptance Criteria Review**: Verify each criterion from spec (acceptance-reviewer agent)
+2. **Plan Compliance Review**: Verify all planned changes are complete (plan-compliance-reviewer agent)
+3. **Code Quality Review**: Check for bugs, security issues, and code quality (feature-dev:code-reviewer agent)
 
 ## Input
 
 - Spec document at `.claude/dev-workflow/story/{name}/spec.md`
+- Plan document at `.claude/dev-workflow/story/{name}/plan.md`
 - Completed implementation
 
 ## Process
 
-### 1. Load Spec
+### 1. Invoke Reviewers (Parallel)
 
-Load the spec document and extract:
-- Acceptance criteria (Given-When-Then)
-- Out of Scope (to avoid checking irrelevant items)
+Launch three reviewers in parallel using Task tool:
 
-### 2. Verify Each Criterion
+```
+Task 1: acceptance-reviewer (internal agent)
+- subagent_type: dev-workflow:acceptance-reviewer
+- prompt: "Review implementation against acceptance criteria. spec_path: {spec_path}"
 
-For each acceptance criterion:
+Task 2: plan-compliance-reviewer (internal agent)
+- subagent_type: dev-workflow:plan-compliance-reviewer
+- prompt: "Review implementation against plan. plan_path: {plan_path}"
 
-1. **Check Given**: Are preconditions satisfied?
-2. **Execute When**: Perform the described action (run tests, check code)
-3. **Verify Then**: Does result match expectation?
+Task 3: feature-dev:code-reviewer (external agent)
+- subagent_type: feature-dev:code-reviewer
+- prompt: "Review code quality for the changes in this implementation"
+- Note: Skip if agent not available
+```
 
-### 3. Determine Result
+### 2. Aggregate Results
 
-For each criterion:
-- **PASS**: Expected result is satisfied
-- **FAIL**: Expected result is NOT satisfied - include what's wrong and how to fix
-- **NEEDS REVIEW**: Cannot be determined by AI (requires user judgment)
+Combine outputs from all reviewers into unified report.
+
+### 3. Determine Overall Status
+
+| Reviewer | PASS Condition |
+|----------|----------------|
+| Acceptance | All criteria PASS or NEEDS REVIEW |
+| Plan Compliance | All items COMPLETE or NEEDS REVIEW |
+| Code: Bugs | No issues found |
+| Code: Logic Errors | No issues found |
+| Code: Security | No issues found |
+| Code: Code Quality | No HIGH severity issues |
+| Code: Conventions | No issues found |
+
+Overall PASS requires all reviewers to pass.
 
 ### 4. Self-Correct (if FAIL)
 
-This is a feedback loop. If FAIL exists:
-1. Fix the identified issue
-2. Re-run self-review
-3. Repeat until all PASS or NEEDS REVIEW
+This is a feedback loop. If any FAIL exists:
+
+1. **Acceptance FAIL**: Fix implementation to meet criteria
+2. **Plan FAIL**: Complete missing steps/file changes
+3. **Code Quality FAIL**: Fix identified issues
+
+After fixing, re-run self-review.
 
 **Escalation rule**: If the same FAIL occurs twice consecutively, promote it to NEEDS REVIEW.
 
-**Rationale**: If AI cannot fix an issue after one attempt, continuing to retry won't help. The issue likely requires user judgment or clarification that AI cannot provide.
+**Rationale**: If AI cannot fix an issue after one attempt, the issue likely requires user judgment.
 
 ## Output Format
-
-Output must be actionable for self-correction:
 
 ```markdown
 ## Self Review Results
 
 **Spec**: `.claude/dev-workflow/story/{name}/spec.md`
+**Plan**: `.claude/dev-workflow/story/{name}/plan.md`
 
-### Results
+### 1. Acceptance Criteria Review
 
-| # | Criterion | Result | Details |
-|---|-----------|--------|---------|
-| 1 | {name} | PASS | {verification method used} |
-| 2 | {name} | FAIL | **Problem**: {what's wrong} / **Fix**: {how to fix} |
-| 3 | {name} | NEEDS REVIEW | {why AI cannot determine} |
+{Output from acceptance-reviewer agent}
 
-### Summary
+### 2. Plan Compliance Review
 
-- PASS: X
-- FAIL: X
-- NEEDS REVIEW: X
+{Output from plan-compliance-reviewer agent}
+
+### 3. Code Quality Review
+
+{Output from feature-dev:code-reviewer agent, or "Skipped (agent not available)" if unavailable}
+
+### Overall Summary
+
+| Review | PASS | FAIL | NEEDS REVIEW |
+|--------|------|------|--------------|
+| Acceptance Criteria | X | X | X |
+| Plan Compliance | X | X | X |
+| Code: Bugs | X | X | X |
+| Code: Logic Errors | X | X | X |
+| Code: Security | X | X | X |
+| Code: Code Quality | X | X | X |
+| Code: Conventions | X | X | X |
+| **Total** | X | X | X |
 
 ### Next Action
 
-{If FAIL: specific fix to apply}
+{If any FAIL: specific fixes to apply, then re-run self-review}
 {If all PASS: ready for user review}
-{If NEEDS REVIEW: questions for user}
+{If only NEEDS REVIEW: questions requiring user judgment}
 ```
-
-## Verification Methods
-
-| Criterion Type | Method |
-|----------------|--------|
-| File exists | Glob/Read |
-| Code contains X | Grep/Read |
-| Tests pass | Bash (run tests) |
-| Build succeeds | Bash (run build) |
-| UI/UX behavior | NEEDS REVIEW |
 
 ## Success Criteria
 
-- [ ] All acceptance criteria from spec are checked
-- [ ] Each FAIL includes problem description AND fix instruction
+- [ ] All three reviewers are invoked in parallel
+- [ ] Results are aggregated into unified report
+- [ ] Each FAIL includes actionable fix instruction
 - [ ] Feedback loop continues until no FAIL remains
 - [ ] Ready to proceed to user review (all PASS or only NEEDS REVIEW)
 
