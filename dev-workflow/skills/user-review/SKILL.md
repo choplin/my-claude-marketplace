@@ -1,8 +1,8 @@
 ---
 name: user-review
-description: This skill is invoked automatically when self-review skill completes and presents results (PASS or NEEDS REVIEW status). Should NOT be invoked directly by user, before self-review completes, or when no implementation exists to review. Facilitates structured user review with appropriate response patterns based on feedback complexity.
+description: Structured user review interaction skill. Presents review summary, classifies user feedback (Minor/Complex/Design Change), and responds appropriately.
 allowed-tools: Read, Glob, Grep, Bash, AskUserQuestion
-user-invocable: false
+user-invocable: true
 ---
 
 # User Review
