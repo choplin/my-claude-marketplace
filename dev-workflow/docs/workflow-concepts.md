@@ -117,6 +117,8 @@ Classification based on work volume.
        │          │
        │   [Session clear]
        │          │
+       │   [Resume Work] ← Re-entry point for existing work
+       │          │
        └──────────┴──────────→ [Implement]
                                    ↓
                             [Test/AI Review] ←┐
@@ -135,11 +137,12 @@ Classification based on work volume.
 1. **Understand**: Grasp task content and assess volume
 2. **Document creation**: For Story/Epic, create spec/plan/epic
 3. **Session clear**: For Story/Epic, clear session before implementation
-4. **Implement**: Proceed with implementation based on documents
-5. **Test/AI Review**: Self-review based on acceptance criteria
-6. **User Review**: Final confirmation by human
-7. **Commit**: Commit changes
-8. **Knowledge Capture**: Save learnings to appropriate locations
+4. **Resume Work**: Re-entry point for existing work (evaluates progress, identifies gaps, recommends next action)
+5. **Implement**: Proceed with implementation based on documents
+6. **Test/AI Review**: Self-review based on acceptance criteria
+7. **User Review**: Final confirmation by human
+8. **Commit**: Commit changes
+9. **Knowledge Capture**: Save learnings to appropriate locations
 
 ### Skills for Each Phase
 
@@ -149,6 +152,7 @@ Classification based on work volume.
 | Document (Task) | `create-task` | Create task-level plan with Why/What context |
 | Document (Story) | `create-spec` → `create-plan` | Create spec then implementation plan |
 | Document (Epic) | `create-epic` | Decompose into Stories |
+| Resume Work | `resume-work` | Evaluate progress, identify gaps, recommend resumption point |
 | Test/AI Review | `self-review` | Verify against acceptance criteria |
 | User Review | `user-review` | Structured feedback handling |
 | Commit + Knowledge Capture | `post-task` | Commit and capture learnings |

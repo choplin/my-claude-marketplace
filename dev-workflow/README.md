@@ -23,6 +23,7 @@ A plugin that systematizes development workflows with Claude Code. Supports work
 | `create-epic` | Create epic document (manage multiple stories) |
 | `create-spec` | Create spec document (AI self-reviewable acceptance criteria) |
 | `create-plan` | Create implementation plan document (self-contained) |
+| `resume-work` | Resume existing work by evaluating progress and identifying resumption point |
 | `self-review` | Self-review based on acceptance criteria |
 | `user-review` | Facilitate structured user review with appropriate response patterns |
 | `post-task` | Capture knowledge after task completion |
