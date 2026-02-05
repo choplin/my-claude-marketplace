@@ -120,3 +120,12 @@ The How section can be derived from code investigation, but Why/What must be use
 This skill is invoked ONLY by explore-needs after Task assessment.
 
 **Do NOT invoke directly** - if user calls this skill directly, redirect to explore-needs first.
+
+## Next Session
+
+After plan is approved via ExitPlanMode:
+
+**Reference**: Plan file (Claude Code's plan feature)
+**Next phase**: Implementation
+
+User can resume by loading the plan and continuing implementation.

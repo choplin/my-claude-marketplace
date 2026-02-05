@@ -173,3 +173,15 @@ When gap analysis shows ambiguity:
 - [ ] Recommended action is appropriate for the state
 - [ ] User approves action before execution
 - [ ] Correct skill is invoked based on user selection
+
+## Next Session
+
+This skill evaluates state and recommends the next phase. After user selects action:
+
+| Document State | Next phase |
+|----------------|------------|
+| spec.md only | `create-plan` |
+| spec.md + plan.md, not started | Implementation |
+| spec.md + plan.md, in progress | Continue implementation |
+| spec.md + plan.md, potentially complete | `self-review` |
+| epic.md | `create-spec` for next Story |

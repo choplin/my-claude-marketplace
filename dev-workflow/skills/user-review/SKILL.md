@@ -259,3 +259,15 @@ post-task
 | Assuming LGTM without explicit signal | User may have more feedback | Wait for explicit approval |
 | Asking "Should I proceed?" after summary | User review is for feedback, not approval of summary | Wait silently for feedback |
 | Proposing multiple interpretations | Adds cognitive load to user | Use dig to narrow down |
+
+## Next Session
+
+After user gives LGTM:
+
+**Reference**:
+- `.claude/dev-workflow/story/{name}/spec.md`
+- `.claude/dev-workflow/story/{name}/plan.md`
+
+**Next phase**: `post-task`
+
+Read spec and plan, then invoke `post-task` skill to capture knowledge and finalize.

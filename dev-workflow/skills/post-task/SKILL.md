@@ -98,3 +98,15 @@ Which items would you like me to capture?
 - [ ] Each proposal includes rationale (why it's worth capturing)
 - [ ] User can select which items to capture
 - [ ] Selected items are properly created in their destinations
+
+## Next Session
+
+After post-task completes:
+
+**If part of Epic**:
+- **Reference**: `.claude/dev-workflow/epic/{name}/epic.md`
+- **Next phase**: `create-spec` for next Story
+
+**If standalone Story/Task**:
+- **Reference**: None
+- **Next phase**: Done (or start new task with `/new-task`)

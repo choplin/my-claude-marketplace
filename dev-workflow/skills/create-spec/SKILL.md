@@ -144,6 +144,11 @@ Present spec to user for approval before proceeding.
 - [ ] Out of Scope is explicitly stated
 - [ ] User has approved the spec
 
-## Next Action
+## Next Session
 
-After spec is approved, suggest creating implementation plan using `create-plan` skill.
+After spec is approved:
+
+**Reference**: `.claude/dev-workflow/story/{name}/spec.md`
+**Next phase**: `create-plan`
+
+Read the spec file and invoke `create-plan` skill to create implementation plan.

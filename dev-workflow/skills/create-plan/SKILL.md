@@ -114,9 +114,14 @@ Present plan to user for approval before proceeding.
 - [ ] Implementation can start by reading plan alone (/clear and go)
 - [ ] User has approved the plan
 
-## Next Action
+## Next Session
 
 After plan is approved:
-- Session can be cleared
-- Load spec + plan and start implementation
-- Update Progress section as steps complete
+
+**Reference**:
+- `.claude/dev-workflow/story/{name}/spec.md`
+- `.claude/dev-workflow/story/{name}/plan.md`
+
+**Next phase**: Implementation
+
+Read both spec and plan, then proceed with implementation. Update Progress section as steps complete.

@@ -96,3 +96,12 @@ Identify the first Story with no dependencies and suggest starting create-spec f
 - [ ] Each Story's What is expressible in one sentence
 - [ ] Dependencies between Stories are documented
 - [ ] Next Story to start is identified (one with no dependencies)
+
+## Next Session
+
+After epic is created:
+
+**Reference**: `.claude/dev-workflow/epic/{name}/epic.md`
+**Next phase**: `create-spec` for first Story (one with no dependencies)
+
+Read the epic file, identify the first Story to implement, and invoke `explore-needs` or `create-spec` for that Story.

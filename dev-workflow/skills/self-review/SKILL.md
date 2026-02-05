@@ -102,7 +102,14 @@ Output must be actionable for self-correction:
 - [ ] Feedback loop continues until no FAIL remains
 - [ ] Ready to proceed to user review (all PASS or only NEEDS REVIEW)
 
-## Next Action
+## Next Session
 
-- **All PASS or NEEDS REVIEW only**: Proceed to `user-review` skill (user approval required before post-task)
-- **FAIL exists**: Fix and re-run self-review (feedback loop)
+After self-review completes (all PASS or NEEDS REVIEW only):
+
+**Reference**:
+- `.claude/dev-workflow/story/{name}/spec.md`
+- `.claude/dev-workflow/story/{name}/plan.md`
+
+**Next phase**: `user-review`
+
+Read spec and plan, review the self-review results, and invoke `user-review` skill to present results to user.

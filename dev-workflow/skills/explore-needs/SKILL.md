@@ -154,3 +154,10 @@ Task → Story promotion is a **normal flow**, not a failure.
 - [ ] What is specific with measurable completion criteria
 - [ ] Assessment rationale is clear and traceable (based on "Criteria directly from Needs?" question)
 - [ ] Correct skill invoked based on assessment (create-task / create-spec / create-epic)
+
+## Next Session
+
+If session is cleared before completing this skill:
+
+**Reference**: None (interview context is lost)
+**Next phase**: Restart with `explore-needs` (invoke `/new-task`)
