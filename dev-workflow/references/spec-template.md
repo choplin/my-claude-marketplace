@@ -1,5 +1,10 @@
 # Spec: {feature-name}
 
+## Branch
+
+- **Name**: `{prefix}/{feature-name}`
+- **Base**: `main`
+
 ## Why (Background & Purpose)
 
 {User-confirmed background, motivation, problem to solve}

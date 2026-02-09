@@ -1,12 +1,16 @@
 ---
 name: resume-work
 description: Use this skill to resume work on an existing Epic, Story, or Task. Triggers on phrases like "resume work", "continue previous task", "pick up where I left off", "what was I working on", or when user wants to continue existing development work. Should NOT trigger for starting new tasks (use explore-needs), or for discussion continuity without implementation artifacts.
-allowed-tools: Read, Glob, Grep, AskUserQuestion, Skill
+allowed-tools: Read, Glob, Grep, AskUserQuestion, Skill, Bash
 ---
 
 # Resume Work
 
 Resume work on an existing Epic, Story, or Task by evaluating current state and identifying the appropriate resumption point.
+
+## Tool Usage Constraints
+
+- **Bash**: ONLY for git branch operations (`git branch --show-current`, `git checkout`, `git status --porcelain`, `git stash`). No other use.
 
 ## Purpose
 
@@ -47,6 +51,7 @@ Read the selected document(s) and extract:
 - **Review path**: If exists
 - **Review Phase**: Phase value from review.md (AWAITING FEEDBACK / IN PROGRESS / LGTM)
 - **Review Items**: Count of OPEN, IN PROGRESS, and RESOLVED items
+- **Branch**: Name and Base from spec.md `## Branch` section (if exists)
 - **Why**: Background and motivation
 - **What**: Implementation target and success criteria
 - **Progress**: Current implementation status
@@ -107,6 +112,7 @@ Output structured report:
 - **Type**: [Epic/Story/Task]
 - **Spec**: [path or N/A]
 - **Plan**: [path or N/A]
+- **Branch**: [spec branch name] (current: [current git branch])
 
 ### Context
 **Why**: [Brief summary of motivation]
@@ -141,7 +147,24 @@ Options:
 3. [Update plan first, then continue]
 ```
 
-### Phase 7: User Confirmation and Execution
+### Phase 7: Branch Checkout
+
+If spec.md contains a `## Branch` section:
+
+1. **Check current branch**: Run `git branch --show-current`
+2. **Already on correct branch**: If current branch matches spec branch name, report "Already on branch {name}" and skip
+3. **Different branch**: If on a different branch:
+   - Check for uncommitted changes with `git status --porcelain`
+   - If uncommitted changes exist, present options:
+     - Stash changes and switch (`git stash && git checkout {branch}`)
+     - Stay on current branch
+     - Commit first before switching
+   - If clean, ask user: "Switch to {branch-name}?"
+4. **Execute only after user approval**: Run `git checkout {branch-name}`
+
+If no Branch section in spec, skip this phase.
+
+### Phase 8: User Confirmation and Execution
 
 Wait for user selection before proceeding.
 

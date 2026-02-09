@@ -1,13 +1,17 @@
 ---
 name: create-spec
 description: This skill is invoked ONLY from explore-needs when Story-level work is identified. Should NOT be invoked directly by user or auto-triggered by AI. Creates spec document with requirements and acceptance criteria.
-allowed-tools: Read, Write, Glob, Grep, AskUserQuestion
+allowed-tools: Read, Write, Glob, Grep, AskUserQuestion, Bash
 user-invocable: false
 ---
 
 # Create Spec Document
 
 Create a specification document that captures requirements and acceptance criteria for Story-level work.
+
+## Tool Usage Constraints
+
+- **Bash**: ONLY for git branch operations (`git checkout -b`, `git branch`, `git status --porcelain`). No other use.
 
 ## Purpose
 
@@ -99,8 +103,27 @@ Explicitly state what this spec does NOT include. This prevents scope creep duri
 
 Create `.claude/dev-workflow/story/{name}/spec.md`:
 
+**Branch name**: Determine the prefix from the Why/What content:
+
+| Pattern | Prefix |
+|---------|--------|
+| New feature | `feat/` |
+| Bug fix | `fix/` |
+| Refactoring | `refactor/` |
+| Documentation | `docs/` |
+| Test | `test/` |
+| Build/CI/tooling | `chore/` |
+| Performance | `perf/` |
+
+Use the Story directory name as the branch name: `{prefix}/{story-name}`
+
 ```markdown
 # Spec: {title}
+
+## Branch
+
+- **Name**: `{prefix}/{story-name}`
+- **Base**: `main`
 
 ## Related Files
 
@@ -134,6 +157,17 @@ Create `.claude/dev-workflow/story/{name}/spec.md`:
 
 Present spec to user for approval before proceeding.
 
+### 7. Create Branch
+
+After user approves the spec, create the git branch:
+
+1. **Check uncommitted changes**: Run `git status --porcelain`
+   - If there are uncommitted changes, **stop** and inform the user to commit or stash first
+2. **Check existing branch**: Run `git branch --list {branch-name}`
+   - If the branch already exists, ask user whether to use the existing branch or choose a different name
+3. **Create and switch**: Run `git checkout -b {branch-name}`
+4. **Report success**: Confirm branch creation to the user
+
 ## Success Criteria
 
 - [ ] Why/What from explore-needs is captured
@@ -143,12 +177,14 @@ Present spec to user for approval before proceeding.
 - [ ] Each criterion is verifiable by AI: Can identify specific file(s) or code section(s) to check for PASS/FAIL. If no verification target can be named, the criterion is not verifiable.
 - [ ] Out of Scope is explicitly stated
 - [ ] User has approved the spec
+- [ ] Branch is created and checked out (or user opted to skip)
 
 ## Next Session
 
-After spec is approved:
+After spec is approved and branch is created:
 
 **Reference**: `.claude/dev-workflow/story/{name}/spec.md`
+**Branch**: `{prefix}/{story-name}` (checkout if not already on it)
 **Next phase**: `create-plan`
 
 Read the spec file and invoke `create-plan` skill to create implementation plan.

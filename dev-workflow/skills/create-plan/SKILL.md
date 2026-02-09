@@ -72,6 +72,7 @@ Create `.claude/dev-workflow/story/{name}/plan.md`:
 
 - **Workflow concepts**: `dev-workflow/docs/workflow-concepts.md`
 - **Spec**: `.claude/dev-workflow/story/{name}/spec.md`
+- **Branch**: `{prefix}/{story-name}` (from spec)
 - **Epic**: `.claude/dev-workflow/epic/{parent}/epic.md` (if part of an Epic)
 
 ## Approach

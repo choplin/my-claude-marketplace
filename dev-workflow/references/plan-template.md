@@ -1,6 +1,7 @@
 # Plan: {plan-name}
 
 **Related spec**: `docs/spec-{name}.md`
+**Branch**: `{prefix}/{story-name}` (from spec)
 
 ## Approach
 

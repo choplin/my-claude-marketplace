@@ -101,6 +101,31 @@ Classification based on work volume.
 | plan | Implementation steps + progress | High |
 | review | Review state + user feedback tracking (for cross-session review) | High |
 
+#### Branch Management
+
+Each Story maps to a single git branch. Branch lifecycle is managed by skills:
+
+| Timing | Skill | Action |
+|--------|-------|--------|
+| After spec approval | `create-spec` | Create branch `{prefix}/{story-name}` and checkout |
+| Session resume | `resume-work` | Detect spec branch, confirm checkout with user |
+
+**Branch naming convention**: `{prefix}/{story-name}`
+
+| Prefix | When |
+|--------|------|
+| `feat/` | New feature |
+| `fix/` | Bug fix |
+| `refactor/` | Refactoring |
+| `docs/` | Documentation |
+| `test/` | Test |
+| `chore/` | Build/CI/tooling |
+| `perf/` | Performance |
+
+The Story directory name (e.g., `add-auth`) becomes the branch name (e.g., `feat/add-auth`).
+
+**Note**: Task and Epic do not have associated branches. Tasks are too small to warrant a branch, and Epics are decomposed into Stories which each have their own branch.
+
 ### Workflow Phases
 
 ```
@@ -112,13 +137,13 @@ Classification based on work volume.
        │          │          │
        │      create spec  create epic
        │          │          │
-       │      create plan  decompose to Stories
+       │      create branch decompose to Stories
        │          │          │
-       │          │          └→ Return to [Understand] (each Story)
+       │      create plan  └→ Return to [Understand] (each Story)
        │          │
        │   [Session clear]
        │          │
-       │   [Resume Work] ← Re-entry point for existing work
+       │   [Resume Work] ← Re-entry point (branch checkout)
        │          │
        └──────────┴──────────→ [Implement]
                                    ↓
