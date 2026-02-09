@@ -1,7 +1,7 @@
 ---
 name: user-review
 description: Structured user review interaction skill. Presents review summary, classifies user feedback (Minor/Complex/Design Change), and responds appropriately.
-allowed-tools: Read, Glob, Grep, Bash, AskUserQuestion
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 user-invocable: true
 ---
 
@@ -34,9 +34,27 @@ These issues cause rework and frustration.
 
 ## Process
 
+### 0. Check Review State
+
+Before starting, check for existing review state:
+
+1. Look for `review.md` at `.claude/dev-workflow/story/{name}/review.md`
+2. If **review.md exists**, read it and resume based on Phase:
+   - `AWAITING FEEDBACK`: Show summary of resolved items (if any) and current state, then wait for next feedback
+   - `IN PROGRESS`: Find OPEN or IN PROGRESS items and continue handling them
+   - `LGTM`: Proceed to post-task
+3. If **review.md does not exist**, continue to step 1 (normal flow)
+
 ### 1. Present Review Summary
 
-After self-review completes, present:
+After self-review completes:
+
+1. **Create review.md** at `.claude/dev-workflow/story/{name}/review.md` using the review template (`references/review-template.md`):
+   - Fill in Related Files (spec and plan paths)
+   - Copy self-review results into the Self-Review Results table
+   - Set Phase to `AWAITING FEEDBACK`
+   - Set Resolved to `0 / 0`
+2. **Present** the review summary to the user:
 
 ```markdown
 ## Review Summary
@@ -104,7 +122,9 @@ Either results in rework. Both must pass for immediate implementation.
 
 User signals approval with phrases like "LGTM", "OK", "Looks good", "Approved".
 
-**Action**: Proceed to post-task skill.
+**Action**:
+1. Update review.md: Set Phase to `LGTM`
+2. Proceed to post-task skill
 
 #### Minor Feedback
 
@@ -116,9 +136,12 @@ Feedback where both location and content are unambiguous.
 - "Add a null check before calling process()" (where: before process(), what: null check)
 
 **Action**:
-1. Implement the fix
-2. Report: "Fixed: {description}. Any other feedback?"
-3. Wait for next input
+1. Add Review Item to review.md (Status: OPEN, Classification: Minor)
+2. Implement the fix
+3. Update Review Item in review.md: Status → RESOLVED, fill Resolution
+4. Update review.md Resolved counter
+5. Report: "Fixed: {description}. Any other feedback?"
+6. Wait for next input
 
 #### Complex Feedback
 
@@ -131,12 +154,13 @@ Feedback where location OR content is ambiguous.
 - "Performance might be an issue here" (where: which part? what: optimization approach?)
 
 **Action**:
-1. Acknowledge: "I'd like to clarify the intent before making changes."
-2. Use dig skill to explore:
+1. Add Review Item to review.md (Status: OPEN, Classification: Complex)
+2. Acknowledge: "I'd like to clarify the intent before making changes."
+3. Use dig skill to explore:
    - **Why**: What is the underlying concern?
    - **Where**: Which specific location(s)?
    - **What**: What specific change is expected?
-3. After clarification, propose the fix:
+4. After clarification, propose the fix:
    ```markdown
    ## Proposed Fix
 
@@ -148,7 +172,9 @@ Feedback where location OR content is ambiguous.
 
    Proceed with this fix?
    ```
-4. Wait for approval before implementing
+5. Update Review Item in review.md: Status → IN PROGRESS, fill Proposed Fix
+6. Wait for approval before implementing
+7. After implementation: Update Review Item Status → RESOLVED, fill Resolution, update Resolved counter
 
 #### Design Change
 
@@ -171,10 +197,11 @@ Feedback that requires changes beyond the current spec's scope.
 **When in doubt**: If implementing the feedback would require changing the spec's Success Criteria section, it's a Design Change.
 
 **Action**:
-1. Acknowledge: "This feedback suggests changes beyond the current spec."
-2. Summarize what needs to change in spec (be specific: which success criteria?)
-3. Invoke create-spec skill to edit the existing spec
-4. After spec update, re-implement and re-run self-review
+1. Add Review Item to review.md (Status: OPEN, Classification: Design Change)
+2. Acknowledge: "This feedback suggests changes beyond the current spec."
+3. Summarize what needs to change in spec (be specific: which success criteria?)
+4. Invoke create-spec skill to edit the existing spec
+5. After spec update, re-implement and re-run self-review
 
 ## Output Format
 
@@ -222,6 +249,16 @@ This feedback requires spec-level changes:
 Proceeding to update spec with create-spec skill.
 ```
 
+## Session Persistence
+
+Review state is persisted in `review.md`. After completing each review item:
+
+1. Inform the user that review state is saved to `review.md`
+2. Mention that they can clear the session and resume later with `resume-work`
+3. Do not force session clear — leave the decision to the user
+
+This enables handling each feedback item in a separate session when the context becomes large.
+
 ## Success Criteria
 
 ### Process Criteria
@@ -262,12 +299,16 @@ post-task
 
 ## Next Session
 
-After user gives LGTM:
-
 **Reference**:
 - `.claude/dev-workflow/story/{name}/spec.md`
 - `.claude/dev-workflow/story/{name}/plan.md`
+- `.claude/dev-workflow/story/{name}/review.md`
 
-**Next phase**: `post-task`
+**Next phase** (depends on review.md Phase):
 
-Read spec and plan, then invoke `post-task` skill to capture knowledge and finalize.
+| review.md Phase | Next phase |
+|-----------------|------------|
+| `AWAITING FEEDBACK` / `IN PROGRESS` | Continue `user-review` (resume from review.md) |
+| `LGTM` | `post-task` |
+
+Read spec, plan, and review.md, then invoke the appropriate skill.

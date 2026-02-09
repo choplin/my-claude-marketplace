@@ -33,6 +33,7 @@ Review what happened during the session to identify knowledge worth preserving:
 - Project-specific conventions discovered
 - Decisions made during implementation
 - Specs/plans with lasting value
+- Review feedback patterns (from review.md if exists)
 
 ### 2. Propose Knowledge Capture
 

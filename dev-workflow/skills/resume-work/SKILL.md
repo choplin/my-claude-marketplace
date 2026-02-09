@@ -34,7 +34,8 @@ If no path provided:
   └── {work-unit}/
         ├── epic.md
         ├── spec.md
-        └── plan.md
+        ├── plan.md
+        └── review.md
 ```
 
 ### Phase 2: Document Loading
@@ -43,6 +44,9 @@ Read the selected document(s) and extract:
 - **Type**: Epic / Story / Task
 - **Spec path**: If exists
 - **Plan path**: If exists
+- **Review path**: If exists
+- **Review Phase**: Phase value from review.md (AWAITING FEEDBACK / IN PROGRESS / LGTM)
+- **Review Items**: Count of OPEN, IN PROGRESS, and RESOLVED items
 - **Why**: Background and motivation
 - **What**: Implementation target and success criteria
 - **Progress**: Current implementation status
@@ -58,6 +62,8 @@ Assess actual state by:
 - `not_started`: No implementation artifacts found
 - `in_progress`: Partial implementation detected
 - `potentially_complete`: All planned items appear done, needs review
+- `in_review`: review.md exists and Phase is not LGTM (AWAITING FEEDBACK or IN PROGRESS)
+- `review_complete`: review.md exists and Phase is LGTM
 - `blocked`: Implementation cannot proceed (missing dependencies, etc.)
 
 ### Phase 4: Gap Analysis
@@ -85,6 +91,8 @@ Based on state and gaps, recommend one of:
 | `not_started` | Begin implementation from step 1 |
 | `in_progress` | Continue from last completed step |
 | `potentially_complete` | Invoke `self-review` skill |
+| `in_review` | Invoke `user-review` skill (resumes from review.md) |
+| `review_complete` | Invoke `post-task` skill |
 | `blocked` | Report blockers, suggest resolution |
 | Major divergence | Suggest plan update before continuing |
 
@@ -111,6 +119,10 @@ Output structured report:
 | 1. [description] | ✅ Done | |
 | 2. [description] | 🔄 In Progress | [partial details] |
 | 3. [description] | ⬜ Pending | |
+
+### Review Status (if review.md exists)
+- **Phase**: [AWAITING FEEDBACK / IN PROGRESS / LGTM]
+- **Items**: [N OPEN, N IN PROGRESS, N RESOLVED]
 
 ### Gap Analysis
 [Summary of differences between plan and current state]
@@ -144,6 +156,8 @@ Based on selection:
 | Scenario | Skill Invoked |
 |----------|--------------|
 | Ready for review | `dev-workflow:self-review` |
+| In review (review.md exists, not LGTM) | `dev-workflow:user-review` |
+| Review complete (review.md Phase=LGTM) | `dev-workflow:post-task` |
 | Spec needs update | `dev-workflow:create-spec` (update mode) |
 | Plan needs update | `dev-workflow:create-plan` (update mode) |
 | Task promotion needed | `dev-workflow:create-spec` (promote Task to Story) |
@@ -184,4 +198,6 @@ This skill evaluates state and recommends the next phase. After user selects act
 | spec.md + plan.md, not started | Implementation |
 | spec.md + plan.md, in progress | Continue implementation |
 | spec.md + plan.md, potentially complete | `self-review` |
+| spec.md + plan.md + review.md (not LGTM) | `user-review` |
+| spec.md + plan.md + review.md (LGTM) | `post-task` |
 | epic.md | `create-spec` for next Story |

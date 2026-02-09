@@ -99,6 +99,7 @@ Classification based on work volume.
 | epic | Requirements organization + Story management (including implementation status) | Low |
 | spec | Requirements + acceptance criteria (for AI self-review) | Medium |
 | plan | Implementation steps + progress | High |
+| review | Review state + user feedback tracking (for cross-session review) | High |
 
 ### Workflow Phases
 
@@ -125,7 +126,7 @@ Classification based on work volume.
                                    │         │ Iteration
                                    └─────────┘
                                    ↓
-                            [User Review]
+                            [User Review] ← review.md persists state
                                    ↓
                                [Commit]
                                    ↓
@@ -164,7 +165,7 @@ Classification based on work volume.
 ## Document Storage
 
 - **Location**: `.claude/dev-workflow/`
-- **Structure**: Grouped by work unit (e.g., `feature-auth/{spec,plan}.md`)
+- **Structure**: Grouped by work unit (e.g., `feature-auth/{spec,plan,review}.md`)
 - **Nature**: Temporary working documents. Explicitly save as permanent documents in post-task phase if needed
 
 Clearly separated by plugin name. Managed separately from project docs.
