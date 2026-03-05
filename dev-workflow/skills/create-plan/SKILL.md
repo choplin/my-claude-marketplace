@@ -75,6 +75,26 @@ Create `.claude/dev-workflow/story/{name}/plan.md`:
 - **Branch**: `{prefix}/{story-name}` (from spec)
 - **Epic**: `.claude/dev-workflow/epic/{parent}/epic.md` (if part of an Epic)
 
+## Workflow Context
+
+**Current phase**: Implementation
+**Work level**: Story
+
+### During Implementation
+- Follow Steps sequentially
+- Update `## Progress` section as each step completes (`- [ ]` → `- [x]`)
+- Refer to Spec's Acceptance Criteria as the source of truth for verification
+
+### After All Steps Complete
+1. Invoke `dev-workflow:self-review` skill — verifies against acceptance criteria in spec
+2. Invoke `dev-workflow:user-review` skill — presents results and collects user feedback
+3. After user LGTM: commit changes
+4. Invoke `dev-workflow:post-task` skill — capture knowledge
+
+### If Session Clears
+- Use `/resume-work` to evaluate progress and resume from the correct point
+- Or read this plan and the spec, then continue from the last completed step
+
 ## Approach
 {High-level implementation approach}
 
@@ -113,6 +133,7 @@ Present plan to user for approval before proceeding.
 - [ ] Steps are in dependency order
 - [ ] Progress checklist exists
 - [ ] Implementation can start by reading plan alone (/clear and go)
+- [ ] Workflow Context section includes current phase, post-implementation workflow sequence, and session recovery instructions
 - [ ] User has approved the plan
 
 ## Next Session

@@ -55,6 +55,7 @@ Read the selected document(s) and extract:
 - **Why**: Background and motivation
 - **What**: Implementation target and success criteria
 - **Progress**: Current implementation status
+- **Workflow Context**: Current phase, work level, post-work instructions (if exists in plan)
 
 ### Phase 3: State Evaluation
 
@@ -63,13 +64,18 @@ Assess actual state by:
 2. Checking actual file changes (if referenced files exist)
 3. Running any verification commands if defined in acceptance criteria
 
-**State categories**:
-- `not_started`: No implementation artifacts found
-- `in_progress`: Partial implementation detected
-- `potentially_complete`: All planned items appear done, needs review
-- `in_review`: review.md exists and Phase is not LGTM (AWAITING FEEDBACK or IN PROGRESS)
-- `review_complete`: review.md exists and Phase is LGTM
-- `blocked`: Implementation cannot proceed (missing dependencies, etc.)
+**State categories** (evaluated in priority order):
+
+| Priority | State | Condition |
+|----------|-------|-----------|
+| 1 | `review_complete` | review.md exists and Phase = LGTM |
+| 2 | `in_review` | review.md exists and Phase ≠ LGTM (AWAITING FEEDBACK or IN PROGRESS) |
+| 3 | `potentially_complete` | plan.md exists and all Progress items are `[x]` |
+| 4 | `in_progress` | plan.md exists and some Progress items are `[x]` |
+| 5 | `planned` | plan.md exists but no Progress items are `[x]` |
+| 6 | `spec_only` | spec.md exists but no plan.md |
+| 7 | `epic_next_story` | epic.md with Stories that have "Not Started" status |
+| 8 | `blocked` | Implementation cannot proceed (missing dependencies, etc.) |
 
 ### Phase 4: Gap Analysis
 
@@ -91,15 +97,21 @@ Output gap summary:
 
 Based on state and gaps, recommend one of:
 
-| State | Recommended Action |
-|-------|-------------------|
-| `not_started` | Begin implementation from step 1 |
-| `in_progress` | Continue from last completed step |
-| `potentially_complete` | Invoke `self-review` skill |
-| `in_review` | Invoke `user-review` skill (resumes from review.md) |
-| `review_complete` | Invoke `post-task` skill |
-| `blocked` | Report blockers, suggest resolution |
-| Major divergence | Suggest plan update before continuing |
+| State | Recommended Action | Target Skill |
+|-------|-------------------|--------------|
+| `spec_only` | Create implementation plan | `dev-workflow:create-plan` |
+| `planned` | Begin implementation from step 1 | _(none — read plan and implement)_ |
+| `in_progress` | Continue from last completed step | _(none — read plan and continue)_ |
+| `potentially_complete` | Run self-review | `dev-workflow:self-review` |
+| `in_review` | Resume user review | `dev-workflow:user-review` |
+| `review_complete` | Run post-task | `dev-workflow:post-task` |
+| `epic_next_story` | Start next Story | `dev-workflow:create-spec` |
+| `blocked` | Report blockers, suggest resolution | _(depends on blocker)_ |
+| Major divergence | Suggest plan update first | `dev-workflow:create-plan` |
+
+**Workflow Context integration**: If the plan document contains a `## Workflow Context` section, use it to:
+- Include post-work instructions in the recommendation (e.g., "After completing remaining steps, invoke self-review")
+- Confirm the recommended action aligns with the workflow sequence
 
 ### Phase 6: Report and Propose
 
@@ -140,6 +152,7 @@ Output structured report:
 ### Recommended Action
 
 **Resume from**: [step/phase]
+**Post-work**: [instructions from Workflow Context, e.g., "After all steps complete, invoke self-review → user-review → commit → post-task"]
 
 Options:
 1. [Primary recommendation] (Recommended)
@@ -164,26 +177,54 @@ If spec.md contains a `## Branch` section:
 
 If no Branch section in spec, skip this phase.
 
-### Phase 8: User Confirmation and Execution
+### Phase 8: Skill Dispatch
 
-Wait for user selection before proceeding.
+After user confirms the recommended action, **dispatch to the appropriate skill or begin implementation**. This is the critical step that reconnects to the dev-workflow flow.
 
-Based on selection:
-- **Continue implementation**: Proceed from identified step
-- **Run self-review**: Invoke `dev-workflow:self-review` skill
-- **Update plan**: Update plan document, then continue
-- **Update spec**: If requirements changed, update spec first
+#### Dispatch Table
+
+Use the `Skill` tool to invoke the appropriate skill:
+
+| State | Dispatch |
+|-------|----------|
+| `spec_only` | `Skill(skill: "dev-workflow:create-plan")` |
+| `planned` | _(No skill — see Implementation Handoff below)_ |
+| `in_progress` | _(No skill — see Implementation Handoff below)_ |
+| `potentially_complete` | `Skill(skill: "dev-workflow:self-review")` |
+| `in_review` | `Skill(skill: "dev-workflow:user-review")` |
+| `review_complete` | `Skill(skill: "dev-workflow:post-task")` |
+| `epic_next_story` | `Skill(skill: "dev-workflow:create-spec")` |
+| Update spec requested | `Skill(skill: "dev-workflow:create-spec")` |
+| Update plan requested | `Skill(skill: "dev-workflow:create-plan")` |
+
+**CRITICAL**: For states with a target skill, you MUST invoke it via the `Skill` tool. Do NOT attempt to replicate the skill's behavior manually. The skills contain workflow context and process definitions that ensure correct flow continuation.
+
+#### Implementation Handoff (`planned` / `in_progress`)
+
+When the state is `planned` or `in_progress`, there is no dedicated implementation skill. Instead, ensure proper workflow continuation by following these steps:
+
+1. **Read documents**: Load both spec.md and plan.md fully into context
+2. **Locate Workflow Context**: Find the `## Workflow Context` section in plan.md
+3. **Identify resumption point**: From `## Progress`, find the first unchecked `- [ ]` step
+4. **Begin/continue implementation**: Follow the plan steps sequentially
+5. **Track progress**: Update `## Progress` as each step completes (`- [ ]` → `- [x]`)
+6. **After all steps complete**: Invoke `Skill(skill: "dev-workflow:self-review")` — this is specified in plan's Workflow Context and MUST NOT be skipped
+
+This handoff ensures the AI follows the full workflow (implement → self-review → user-review → post-task) even without a dedicated implementation skill.
 
 ## Integration with Other Skills
 
-| Scenario | Skill Invoked |
-|----------|--------------|
-| Ready for review | `dev-workflow:self-review` |
-| In review (review.md exists, not LGTM) | `dev-workflow:user-review` |
-| Review complete (review.md Phase=LGTM) | `dev-workflow:post-task` |
-| Spec needs update | `dev-workflow:create-spec` (update mode) |
-| Plan needs update | `dev-workflow:create-plan` (update mode) |
-| Task promotion needed | `dev-workflow:create-spec` (promote Task to Story) |
+| State | Skill Invoked | Invocation |
+|-------|--------------|------------|
+| `spec_only` | `dev-workflow:create-plan` | `Skill(skill: "dev-workflow:create-plan")` |
+| `planned` / `in_progress` | _(implementation, then self-review)_ | Read plan, implement, then `Skill(skill: "dev-workflow:self-review")` |
+| `potentially_complete` | `dev-workflow:self-review` | `Skill(skill: "dev-workflow:self-review")` |
+| `in_review` | `dev-workflow:user-review` | `Skill(skill: "dev-workflow:user-review")` |
+| `review_complete` | `dev-workflow:post-task` | `Skill(skill: "dev-workflow:post-task")` |
+| `epic_next_story` | `dev-workflow:create-spec` | `Skill(skill: "dev-workflow:create-spec")` |
+| Spec needs update | `dev-workflow:create-spec` | `Skill(skill: "dev-workflow:create-spec")` |
+| Plan needs update | `dev-workflow:create-plan` | `Skill(skill: "dev-workflow:create-plan")` |
+| Task promotion needed | `dev-workflow:create-spec` | `Skill(skill: "dev-workflow:create-spec")` |
 
 ## Anti-Patterns
 
@@ -193,6 +234,13 @@ If documents exist, DO NOT:
 - Ask user to re-explain their requirements
 - Create new documents without acknowledging existing ones
 - Ignore progress already made
+
+### Avoid Skipping Skill Dispatch
+
+After state evaluation, DO NOT:
+- Start implementing without invoking the target skill (e.g., jumping to code review without invoking `self-review`)
+- Manually replicate a skill's behavior instead of invoking it via `Skill` tool
+- Skip `self-review` after implementation completes — this breaks the workflow chain
 
 ### Avoid Assumptions
 
@@ -215,12 +263,12 @@ When gap analysis shows ambiguity:
 
 This skill evaluates state and recommends the next phase. After user selects action:
 
-| Document State | Next phase |
-|----------------|------------|
-| spec.md only | `create-plan` |
-| spec.md + plan.md, not started | Implementation |
-| spec.md + plan.md, in progress | Continue implementation |
-| spec.md + plan.md, potentially complete | `self-review` |
-| spec.md + plan.md + review.md (not LGTM) | `user-review` |
-| spec.md + plan.md + review.md (LGTM) | `post-task` |
-| epic.md | `create-spec` for next Story |
+| State | Next Phase | Skill |
+|-------|------------|-------|
+| `spec_only` | Create plan | `dev-workflow:create-plan` |
+| `planned` | Implementation → self-review | _(implement, then `dev-workflow:self-review`)_ |
+| `in_progress` | Continue implementation → self-review | _(continue, then `dev-workflow:self-review`)_ |
+| `potentially_complete` | Self-review | `dev-workflow:self-review` |
+| `in_review` | User review | `dev-workflow:user-review` |
+| `review_complete` | Post-task | `dev-workflow:post-task` |
+| `epic_next_story` | Create spec for next Story | `dev-workflow:create-spec` |

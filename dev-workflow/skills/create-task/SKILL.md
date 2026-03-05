@@ -50,6 +50,25 @@ Write to the plan file with this structure:
 - **Spec**: `.claude/dev-workflow/story/{name}/spec.md` (if promoted from Task)
 - **Epic**: `.claude/dev-workflow/epic/{parent}/epic.md` (if part of an Epic)
 
+## Workflow Context
+
+**Current phase**: Implementation
+**Work level**: Task
+
+### After All Steps Complete
+1. Verify all Completion Criteria are met
+2. Run tests to confirm no regressions
+3. Commit changes
+
+### If Complexity Grows
+If implementation reveals unexpected complexity, promote to Story:
+- Invoke `dev-workflow:create-spec` with Why/What from this plan
+- See `dev-workflow/docs/workflow-concepts.md` for promotion flow
+
+### If Session Clears
+- Re-read this plan and continue implementation
+- Or use `/resume-work`
+
 ## Why (Background & Purpose)
 
 [User-confirmed background and motivation from explore-needs interview]
@@ -114,6 +133,7 @@ The How section can be derived from code investigation, but Why/What must be use
 - [ ] How section is based on actual code investigation (not generic steps)
 - [ ] Plan file is self-contained (can be understood without session history)
 - [ ] All Why/What information is preserved for potential Story promotion
+- [ ] Workflow Context section includes post-implementation instructions and promotion guidance
 
 ## Trigger
 

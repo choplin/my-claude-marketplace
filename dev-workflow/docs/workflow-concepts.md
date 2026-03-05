@@ -231,8 +231,9 @@ All spec/plan documents should be autonomously executable without conversation h
    - What constitutes "done"
    - Verification method
 4. Next steps are clear
-   - Workflow can be understood
-   - How progress changes based on results
+   - Current workflow phase is identified
+   - Post-work actions are specified (e.g., "invoke self-review", "update Progress section")
+   - Instructions are actionable without session history
 
 ### 2. Session-clear Prerequisite
 
@@ -280,3 +281,4 @@ Lessons learned from designing this workflow:
 7. **Criteria must be operationally defined**. Avoid subjective words like "obvious", concretize in checklist format
 8. **Using subagents (Claude/Codex) for design review reveals overlooked issues**
 9. **Task/Story assessment is determined by "Needs→Criteria directness", not "How choices"**. "Having choices" is a result; the cause is "Cannot derive Criteria directly from Needs"
+10. **Plan documents need workflow context, not just implementation steps**. After session clear, the plan is the only surviving context. Without workflow navigation (which phase, what comes next), AI loses its place in the workflow and skips post-implementation steps like self-review
