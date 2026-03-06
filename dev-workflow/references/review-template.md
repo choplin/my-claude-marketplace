@@ -17,13 +17,13 @@
 
 ### Item {N}: {feedback summary}
 
-- **Status**: OPEN | IN PROGRESS | RESOLVED
+- **Status**: OPEN | APPROACH RECORDED | IMPLEMENTING | RESOLVED
 - **Classification**: Minor | Complex | Design Change
 - **Feedback**: {original user feedback}
-- **Proposed Fix**: {Complex: approval-pending proposal}
+- **Approach**: {WHERE + WHAT structured implementation approach}
 - **Resolution**: {action taken, filled when RESOLVED}
 
 ## Status
 
-- **Phase**: AWAITING FEEDBACK
+- **Phase**: COLLECTING FEEDBACK
 - **Resolved**: 0 / 0

@@ -57,16 +57,17 @@ For each story directory found (containing `spec.md`):
 | Priority | Condition | Status |
 |----------|-----------|--------|
 | 1 | `review.md` exists, Phase = `LGTM` | Done |
-| 2 | `review.md` exists, Phase = `IN PROGRESS` | Review In Progress |
-| 3 | `review.md` exists, Phase = `AWAITING FEEDBACK` | Awaiting Review |
-| 4 | `plan.md` exists, all Progress items checked (`[x]`) | Implementation Complete |
-| 5 | `plan.md` exists, some Progress items checked | In Progress ({done}/{total} steps) |
-| 6 | `plan.md` exists, no Progress items checked | Planned |
-| 7 | `spec.md` only | Spec Created |
+| 2 | `review.md` exists, Phase = `IMPLEMENTING` | Review: Implementing |
+| 3 | `review.md` exists, Phase = `READY FOR IMPLEMENTATION` | Review: Ready to Implement |
+| 4 | `review.md` exists, Phase = `COLLECTING FEEDBACK` | Review: Collecting Feedback |
+| 5 | `plan.md` exists, all Progress items checked (`[x]`) | Implementation Complete |
+| 6 | `plan.md` exists, some Progress items checked | In Progress ({done}/{total} steps) |
+| 7 | `plan.md` exists, no Progress items checked | Planned |
+| 8 | `spec.md` only | Spec Created |
 
 **How to check review.md Phase**:
 - Read `review.md` and find the line matching `- **Phase**: {value}`
-- Extract the value (AWAITING FEEDBACK, IN PROGRESS, or LGTM)
+- Extract the value (COLLECTING FEEDBACK, READY FOR IMPLEMENTATION, IMPLEMENTING, or LGTM)
 
 **How to check plan.md Progress**:
 - Read `plan.md` and find the `## Progress` section

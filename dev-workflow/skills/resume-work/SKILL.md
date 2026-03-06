@@ -59,8 +59,8 @@ Read the selected document(s) and extract:
 - **Spec path**: If exists
 - **Plan path**: If exists
 - **Review path**: If exists
-- **Review Phase**: Phase value from review.md (AWAITING FEEDBACK / IN PROGRESS / LGTM)
-- **Review Items**: Count of OPEN, IN PROGRESS, and RESOLVED items
+- **Review Phase**: Phase value from review.md (COLLECTING FEEDBACK / READY FOR IMPLEMENTATION / IMPLEMENTING / LGTM)
+- **Review Items**: Count of OPEN, APPROACH RECORDED, IMPLEMENTING, and RESOLVED items
 - **Branch**: Name and Base from spec.md `## Branch` section (if exists)
 - **Why**: Background and motivation
 - **What**: Implementation target and success criteria
@@ -79,7 +79,7 @@ Assess actual state by:
 | Priority | State | Condition |
 |----------|-------|-----------|
 | 1 | `review_complete` | review.md exists and Phase = LGTM |
-| 2 | `in_review` | review.md exists and Phase ≠ LGTM (AWAITING FEEDBACK or IN PROGRESS) |
+| 2 | `in_review` | review.md exists and Phase ≠ LGTM (COLLECTING FEEDBACK, READY FOR IMPLEMENTATION, or IMPLEMENTING) |
 | 3 | `potentially_complete` | plan.md exists and all Progress items are `[x]` |
 | 4 | `in_progress` | plan.md exists and some Progress items are `[x]` |
 | 5 | `planned` | plan.md exists but no Progress items are `[x]` |
@@ -137,8 +137,8 @@ Output structured report:
 | 3. [description] | ⬜ Pending | |
 
 ### Review Status (if review.md exists)
-- **Phase**: [AWAITING FEEDBACK / IN PROGRESS / LGTM]
-- **Items**: [N OPEN, N IN PROGRESS, N RESOLVED]
+- **Phase**: [COLLECTING FEEDBACK / READY FOR IMPLEMENTATION / IMPLEMENTING / LGTM]
+- **Items**: [N OPEN, N APPROACH RECORDED, N IMPLEMENTING, N RESOLVED]
 
 ### Gap Analysis
 [Summary of differences between plan and current state]
