@@ -24,6 +24,7 @@ A plugin that systematizes development workflows with Claude Code. Supports work
 | `create-spec` | Create spec document (AI self-reviewable acceptance criteria) |
 | `create-plan` | Create implementation plan document (self-contained) |
 | `resume-work` | Resume existing work by evaluating progress and identifying resumption point |
+| `handoff` | Generate handoff prompt for seamless session continuation |
 | `self-review` | Self-review based on acceptance criteria |
 | `user-review` | Facilitate structured user review with appropriate response patterns |
 | `post-task` | Capture knowledge after task completion |

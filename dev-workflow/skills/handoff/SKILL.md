@@ -1,0 +1,160 @@
+---
+name: handoff
+description: Generate handoff prompt for seamless session continuation. Use before /clear to preserve context across sessions.
+allowed-tools: Read, Glob, Grep, Bash, AskUserQuestion
+user-invocable: true
+---
+
+# Handoff
+
+Generate a copy-pasteable prompt that enables seamless work continuation in a new session.
+
+**Flow**: `/handoff` → copy prompt → `/clear` → paste prompt → `/resume-work` launches with context
+
+## Tool Usage Constraints
+
+- **Bash**: ONLY for `git branch --show-current`. No other use.
+- **Read-only**: This skill does not modify any files.
+
+## Process
+
+### Phase 1: Document Discovery
+
+Scan for all existing work documents:
+
+1. **Epics**: Glob for `.claude/dev-workflow/epic/*/epic.md`
+2. **Stories**: Glob for `.claude/dev-workflow/story/*/spec.md`
+
+If no documents are found, output:
+
+```
+Active な作業はありません。引き継ぎプロンプトを生成するには、作業中のwork unitが必要です。
+```
+
+Then stop.
+
+### Phase 2: Work Unit Selection
+
+**If exactly one work unit found**: Use it directly, no user interaction needed.
+
+**If multiple work units found**: Present all discovered work units to the user with `AskUserQuestion` and let them select which one to hand off.
+
+Display format for each option:
+- Label: directory name (e.g., `add-auth`)
+- Description: Type (Epic/Story) + brief status indicator
+
+### Phase 3: State Snapshot
+
+For the selected work unit, collect the following information:
+
+#### 3a. Determine Type
+
+| Condition | Type |
+|-----------|------|
+| `epic.md` exists in directory | Epic |
+| `spec.md` exists in directory | Story |
+
+#### 3b. Determine State Category
+
+Evaluate in priority order:
+
+| Priority | State | Condition |
+|----------|-------|-----------|
+| 1 | `review_complete` | `review.md` exists and Phase = `LGTM` |
+| 2 | `in_review` | `review.md` exists and Phase ≠ `LGTM` |
+| 3 | `potentially_complete` | `plan.md` exists and all Progress items are `[x]` |
+| 4 | `in_progress` | `plan.md` exists and some Progress items are `[x]` |
+| 5 | `planned` | `plan.md` exists but no Progress items are `[x]` |
+| 6 | `spec_only` | `spec.md` exists but no `plan.md` |
+| 7 | `epic_next_story` | `epic.md` with Stories that have "Not Started" status |
+| 8 | `blocked` | Implementation cannot proceed |
+
+**How to check review.md Phase**:
+- Read `review.md` and find the line matching `- **Phase**: {value}`
+- Extract the value (AWAITING FEEDBACK, IN PROGRESS, or LGTM)
+
+**How to check plan.md Progress**:
+- Read `plan.md` and find the `## Progress` section
+- Count lines matching `- [x]` (done) and `- [ ]` (pending)
+- Total = done + pending
+
+#### 3c. Collect Progress Summary
+
+If `plan.md` exists:
+- Count completed (`[x]`) and total progress items
+- Format as `{done}/{total} steps completed`
+
+#### 3d. Get Branch Info
+
+If `spec.md` contains a `## Branch` section:
+- Extract the branch name from spec
+- Run `git branch --show-current` to get current branch
+
+#### 3e. Get Review Phase
+
+If `review.md` exists:
+- Extract the Phase value
+
+### Phase 4: Session Notes
+
+Ask the user with `AskUserQuestion`:
+
+> "Session notes to include in the handoff prompt? (e.g., discoveries, gotchas, tips for next session)"
+
+Options:
+1. **Skip** - No additional notes needed
+2. **Add notes** - I have context to pass along
+
+If the user selects "Add notes", they will provide free-text input. Include it in the generated prompt.
+
+### Phase 5: Prompt Generation
+
+Generate the handoff prompt and output it in a fenced code block that the user can copy.
+
+#### Determine Document Path
+
+The path argument for `/resume-work` should be the most advanced document:
+- If `plan.md` exists: use path to `plan.md`
+- Else if `spec.md` exists: use path to `spec.md`
+- Else if `epic.md` exists: use path to `epic.md`
+
+#### Output Format
+
+Output the following, with the code block clearly marked for copying:
+
+````
+以下のプロンプトをコピーして、`/clear` 後に貼り付けてください:
+````
+
+Then output the prompt inside a fenced code block:
+
+```
+/resume-work {document-path}
+
+## Previous Session Context
+- **Type**: {Epic|Story}
+- **State**: {state category}
+- **Progress**: {done}/{total} steps completed
+- **Branch**: {spec branch name} (current: {current git branch})
+{if review phase exists:}
+- **Review Phase**: {phase value}
+
+## Session Notes
+{user's session notes, or omit this section entirely if skipped}
+```
+
+**Rules for the generated prompt**:
+- Omit the `**Progress**` line if no `plan.md` exists
+- Omit the `**Branch**` line if no Branch section in spec
+- Omit the `**Review Phase**` line if no `review.md` exists
+- Omit the `## Session Notes` section entirely if user skipped notes
+- Keep the prompt minimal — `resume-work` handles detailed state analysis
+
+## Success Criteria
+
+- [ ] All work units under `.claude/dev-workflow/` are discovered
+- [ ] State category is correctly determined using the priority table
+- [ ] Generated prompt contains the correct document path
+- [ ] Generated prompt is inside a code block ready for copy-paste
+- [ ] Session notes are included only when provided by the user
+- [ ] The generated prompt, when pasted, correctly triggers `/resume-work` with context
