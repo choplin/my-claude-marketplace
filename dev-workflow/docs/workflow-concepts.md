@@ -266,6 +266,10 @@ Task → Story promotion is a "normal flow", not a failure.
 - Why/What carries over as-is, How is documented
 - spec is an "evolving document", not a "finished product"
 
+### 8. Plan Mode Context Preservation
+
+When Claude Code autonomously enters Plan Mode during dev-workflow execution, include dev-workflow context (active skill, phase, work level, documents, post-plan action) in the plan file. Without this, the plan creates an isolated context that loses its place in the workflow.
+
 ---
 
 ## What We've Learned
@@ -282,3 +286,4 @@ Lessons learned from designing this workflow:
 8. **Using subagents (Claude/Codex) for design review reveals overlooked issues**
 9. **Task/Story assessment is determined by "Needs→Criteria directness", not "How choices"**. "Having choices" is a result; the cause is "Cannot derive Criteria directly from Needs"
 10. **Plan documents need workflow context, not just implementation steps**. After session clear, the plan is the only surviving context. Without workflow navigation (which phase, what comes next), AI loses its place in the workflow and skips post-implementation steps like self-review
+11. **Plan Mode creates isolated context that loses workflow position**. Claude Code's built-in Plan Mode generates `.claude/plans/` files focused on How. Without explicitly embedding dev-workflow context (active skill, phase, next action), the workflow chain breaks after plan execution

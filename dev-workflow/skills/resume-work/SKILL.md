@@ -193,6 +193,24 @@ When the state is `planned` or `in_progress`, there is no dedicated implementati
 5. **Track progress**: Update `## Progress` as each step completes (`- [ ]` → `- [x]`)
 6. **After all steps complete**: Invoke `Skill(skill: "dev-workflow:self-review")` — this is specified in plan's Workflow Context and MUST NOT be skipped
 
+##### Plan Mode Context Preservation
+
+If you use EnterPlanMode during implementation, include a `## dev-workflow Context` block in the plan file (see `references/plan-mode-context.md` for full template):
+
+```markdown
+## dev-workflow Context
+**Active skill**: resume-work (Implementation Handoff)
+**Phase**: Implementation
+**Work level**: Story
+**Documents**:
+- Spec: .claude/dev-workflow/story/{name}/spec.md
+- Plan: .claude/dev-workflow/story/{name}/plan.md
+
+### After This Plan Completes
+Continue with remaining plan.md steps, updating Progress.
+After all steps complete: invoke `dev-workflow:self-review` skill.
+```
+
 ## Anti-Patterns
 
 ### Avoid Starting Fresh

@@ -267,6 +267,25 @@ For each remaining item with Status = `APPROACH RECORDED`:
 3. Update Review Item: Status → `RESOLVED`, fill Resolution
 4. Update review.md Resolved counter
 
+#### Plan Mode Context Preservation
+
+If you use EnterPlanMode during implementation of review items, include a `## dev-workflow Context` block in the plan file (see `references/plan-mode-context.md` for full template):
+
+```markdown
+## dev-workflow Context
+**Active skill**: user-review (Implementation Phase)
+**Phase**: User-Review
+**Work level**: Story
+**Documents**:
+- Spec: .claude/dev-workflow/story/{name}/spec.md
+- Plan: .claude/dev-workflow/story/{name}/plan.md
+- Review: .claude/dev-workflow/story/{name}/review.md
+
+### After This Plan Completes
+Continue resolving remaining review items in review.md.
+After all items resolved: present implementation summary to user.
+```
+
 #### 5c. Completion
 
 After all items are resolved:

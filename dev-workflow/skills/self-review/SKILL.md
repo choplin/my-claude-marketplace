@@ -75,6 +75,23 @@ After fixing, re-run self-review.
 
 **Rationale**: If AI cannot fix an issue after one attempt, the issue likely requires user judgment.
 
+#### Plan Mode Context Preservation
+
+If you use EnterPlanMode to fix issues, include a `## dev-workflow Context` block in the plan file (see `references/plan-mode-context.md` for full template):
+
+```markdown
+## dev-workflow Context
+**Active skill**: self-review (Self-Correct)
+**Phase**: Self-Review
+**Work level**: Story
+**Documents**:
+- Spec: .claude/dev-workflow/story/{name}/spec.md
+- Plan: .claude/dev-workflow/story/{name}/plan.md
+
+### After This Plan Completes
+Re-run self-review to verify fixes are effective.
+```
+
 ## Output Format
 
 ```markdown

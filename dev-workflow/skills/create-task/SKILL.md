@@ -149,3 +149,21 @@ After plan is approved via ExitPlanMode:
 **Next phase**: Implementation
 
 User can resume by loading the plan and continuing implementation.
+
+### Plan Mode During Task Implementation
+
+If EnterPlanMode is used during task implementation, include a `## dev-workflow Context` block in the plan file (see `references/plan-mode-context.md` for full template):
+
+```markdown
+## dev-workflow Context
+**Active skill**: create-task (Implementation)
+**Phase**: Implementation
+**Work level**: Task
+**Documents**:
+- Plan: (Claude Code plan file)
+
+### After This Plan Completes
+Verify all Completion Criteria are met.
+Run tests to confirm no regressions.
+Commit changes.
+```
