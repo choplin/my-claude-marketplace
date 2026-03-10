@@ -52,7 +52,7 @@ Before starting, check for existing review state:
 
 1. Look for `review.md` at `.claude/dev-workflow/story/{name}/review.md`
 2. If **review.md exists**, read it and resume based on Phase:
-   - `COLLECTING FEEDBACK`: Show summary of recorded items (if any) and current state, then wait for next feedback
+   - `COLLECTING FEEDBACK`: Show summary of recorded items (if any) and current state — including any PR-imported items (with `Source` field) that are `OPEN` or `APPROACH RECORDED` — then wait for next feedback
    - `READY FOR IMPLEMENTATION`: Show item summary, then proceed to Implementation Phase (Step 5)
    - `IMPLEMENTING`: Find next APPROACH RECORDED item and continue Implementation Phase (Step 5)
    - `LGTM`: Proceed to post-task
@@ -133,6 +133,8 @@ Either results in rework. Both must pass for immediate approach recording.
 | **Minor** | Both pass | Record approach immediately | No ambiguity = safe to record |
 | **Complex** | Either fails | dig → record approach | Ambiguity = clarify first |
 | **Design Change** | Requires new/changed spec criteria | Record approach (spec changes needed) | Cannot implement within current spec |
+
+**Note on PR-imported items**: Items with a `Source` field (imported via `import-pr-comments`) are pre-classified at import time. They follow the same Collection/Implementation flow as user-provided feedback — no special handling required.
 
 ### 4. Handle Each Classification (Collection Phase)
 

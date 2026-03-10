@@ -19,7 +19,9 @@
 
 - **Status**: OPEN | APPROACH RECORDED | IMPLEMENTING | RESOLVED
 - **Classification**: Minor | Complex | Design Change
-- **Feedback**: {original user feedback}
+- **Source**: {origin - e.g., "PR #42 - @copilot (inline)" — omit for direct user feedback}
+- **Feedback**: {original feedback}
+- **File**: `{path}` L{line} {— for inline PR comments only, omit otherwise}
 - **Approach**: {WHERE + WHAT structured implementation approach}
 - **Resolution**: {action taken, filled when RESOLVED}
 
