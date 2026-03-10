@@ -58,9 +58,11 @@ Before starting, check for existing review state:
    - `LGTM`: Proceed to post-task
 3. If **review.md does not exist**, continue to step 1 (normal flow)
 
-### 1. Present Review Summary
+### 1. Present Review Summary (Fallback Path)
 
-After self-review completes:
+> **Note**: In the normal workflow, self-review creates review.md before invoking handoff. Step 0 detects the existing review.md and resumes from `COLLECTING FEEDBACK`, skipping this step entirely. Step 1 is a fallback for when user-review is invoked directly without prior self-review (e.g., manual invocation).
+
+If review.md does not exist (Step 0 found nothing):
 
 1. **Create review.md** at `.claude/dev-workflow/story/{name}/review.md` using the review template (`references/review-template.md`):
    - Fill in Related Files (spec and plan paths)
@@ -390,8 +392,13 @@ This enables handling each feedback item in a separate session when the context 
 
 ```
 self-review (all PASS or NEEDS REVIEW)
+    ↓ review.md created (by self-review)
+    ↓ handoff invoked (by self-review)
+    ↓ user copies prompt → /clear → pastes
+    ↓ resume-work detects in_review → dispatches user-review
     ↓
 user-review (this skill)
+    ↓ Step 0: existing review.md found → resume COLLECTING FEEDBACK
     ↓ Collection Phase (record approaches)
     ↓ "以上" signal
     ↓ Implementation Phase (batch implement)

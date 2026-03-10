@@ -1,7 +1,7 @@
 ---
 name: self-review
 description: This skill is invoked automatically after implementation completes. Should NOT be invoked directly by user. Orchestrates three parallel reviews (acceptance criteria, plan compliance, code quality) and provides unified feedback for self-correction.
-allowed-tools: Read, Glob, Grep, Bash, Task
+allowed-tools: Read, Write, Glob, Grep, Bash, Task, Skill
 user-invocable: false
 ---
 
@@ -92,6 +92,31 @@ If you use EnterPlanMode to fix issues, include a `## dev-workflow Context` bloc
 Re-run self-review to verify fixes are effective.
 ```
 
+### 5. Create review.md (if no FAIL remains)
+
+When all results are PASS or NEEDS REVIEW (no FAIL), create review.md for the upcoming user-review phase:
+
+1. Check for existing `.claude/dev-workflow/story/{name}/review.md` — if it exists, ask user before overwriting
+2. Read `references/review-template.md`
+3. Fill in the template:
+   - **Title**: From spec.md title
+   - **Related Files**: Actual spec and plan paths
+   - **Self-Review Results**: Aggregated review result table from Step 2
+   - **Review Items**: Empty (no user feedback yet)
+   - **Phase**: `COLLECTING FEEDBACK`
+   - **Resolved**: `0 / 0`
+4. Write to `.claude/dev-workflow/story/{name}/review.md`
+
+### 6. Invoke Handoff
+
+After review.md is created:
+
+1. Notify user: "review.md を作成しました。handoff プロンプトを生成します。"
+2. Invoke `Skill(skill: "dev-workflow:handoff")`
+3. Handoff detects `in_review` state and generates a resume-work prompt for the next session
+
+The user can then copy the prompt, `/clear`, and paste to start user-review in a clean session.
+
 ## Output Format
 
 ```markdown
@@ -128,8 +153,7 @@ Re-run self-review to verify fixes are effective.
 ### Next Action
 
 {If any FAIL: specific fixes to apply, then re-run self-review}
-{If all PASS: ready for user review}
-{If only NEEDS REVIEW: questions requiring user judgment}
+{If all PASS or only NEEDS REVIEW: review.md created, handoff invoked — copy prompt, /clear, paste to start user-review}
 ```
 
 ## Success Criteria
@@ -139,15 +163,9 @@ Re-run self-review to verify fixes are effective.
 - [ ] Each FAIL includes actionable fix instruction
 - [ ] Feedback loop continues until no FAIL remains
 - [ ] Ready to proceed to user review (all PASS or only NEEDS REVIEW)
+- [ ] review.md is created at `.claude/dev-workflow/story/{name}/review.md`
+- [ ] Handoff skill is invoked to generate resume prompt
 
 ## Next Session
 
-After self-review completes (all PASS or NEEDS REVIEW only):
-
-**Reference**:
-- `.claude/dev-workflow/story/{name}/spec.md`
-- `.claude/dev-workflow/story/{name}/plan.md`
-
-**Next phase**: `user-review`
-
-Read spec and plan, review the self-review results, and invoke `user-review` skill to present results to user.
+After self-review completes (all PASS or NEEDS REVIEW only), review.md is created automatically and handoff is invoked. The user copies the generated prompt, clears the session, and pastes it. resume-work detects `in_review` state and dispatches to user-review, which finds existing review.md at Step 0 and begins from `COLLECTING FEEDBACK` phase.
