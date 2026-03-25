@@ -56,9 +56,9 @@ Write to the plan file with this structure:
 **Work level**: Task
 
 ### After All Steps Complete
-1. Verify all Completion Criteria are met
-2. Run tests to confirm no regressions
-3. Commit changes
+1. Run tests to confirm no regressions
+2. Invoke `dev-workflow:self-review` (it will verify Completion Criteria and code quality)
+3. After review completes, commit changes
 
 ### If Complexity Grows
 If implementation reveals unexpected complexity, promote to Story:
@@ -163,7 +163,7 @@ If EnterPlanMode is used during task implementation, include a `## dev-workflow 
 - Plan: (Claude Code plan file)
 
 ### After This Plan Completes
-Verify all Completion Criteria are met.
 Run tests to confirm no regressions.
-Commit changes.
+Invoke `dev-workflow:self-review` (it will verify Completion Criteria and code quality).
+After review completes, commit changes.
 ```

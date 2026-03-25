@@ -24,6 +24,7 @@ Scan for all existing work documents:
 
 1. **Epics**: Glob for `.claude/dev-workflow/epic/*/epic.md`
 2. **Stories**: Glob for `.claude/dev-workflow/story/*/spec.md`
+3. **Tasks**: Glob for `.claude/dev-workflow/task/*/review.md`
 
 If no documents are found, output:
 
@@ -53,6 +54,7 @@ For the selected work unit, collect the following information:
 |-----------|------|
 | `epic.md` exists in directory | Epic |
 | `spec.md` exists in directory | Story |
+| Directory is under `task/` | Task |
 
 #### 3b. Determine State Category
 
@@ -114,6 +116,7 @@ Generate the handoff prompt and output it in a fenced code block that the user c
 #### Determine Document Path
 
 The path argument for `/resume-work` should be the most advanced document:
+- If Task: use path to `review.md` (e.g., `.claude/dev-workflow/task/{name}/review.md`)
 - If `plan.md` exists: use path to `plan.md`
 - Else if `spec.md` exists: use path to `spec.md`
 - Else if `epic.md` exists: use path to `epic.md`
@@ -132,7 +135,7 @@ Then output the prompt inside a fenced code block:
 /resume-work {document-path}
 
 ## Previous Session Context
-- **Type**: {Epic|Story}
+- **Type**: {Epic|Story|Task}
 - **State**: {state category}
 - **Progress**: {done}/{total} steps completed
 - **Branch**: {spec branch name} (current: {current git branch})
