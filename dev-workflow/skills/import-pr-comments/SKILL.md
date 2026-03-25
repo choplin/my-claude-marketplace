@@ -17,7 +17,7 @@ When using draft PRs for bot reviews (e.g., Copilot), review comments arrive on 
 
 ## Input
 
-- An existing `review.md` (created by self-review)
+- `review.md` (if it does not exist, it will be auto-created using `references/review-init-guide.md`)
 - An open PR on the current branch
 
 ## Process
@@ -26,8 +26,13 @@ When using draft PRs for bot reviews (e.g., Copilot), review comments arrive on 
 
 1. **Find review.md**: Look for `review.md` at:
    - `.claude/dev-workflow/story/{name}/review.md`
-   - `.claude/dev-workflow/{name}/review.md`
-   - If not found: stop and report "review.md not found. Run self-review first."
+   - `.claude/dev-workflow/task/{name}/review.md`
+   - `.claude/dev-workflow/{name}/review.md` (legacy fallback)
+   - If not found: **auto-create** review.md using `references/review-init-guide.md`:
+     - Follow the guide to determine work level (Story / Task with plan / Task no plan)
+     - Resolve metadata and create review.md at the appropriate path
+     - Self-Review Results: Use SKIPPED row (`| - | Self-review | SKIPPED | Self-review was not performed |`)
+     - Set Phase to `COLLECTING FEEDBACK`
 
 2. **Check Phase**: Read review.md and check the Phase value.
    - `COLLECTING FEEDBACK`: proceed normally
@@ -161,6 +166,7 @@ Cannot import: {reason}.
 ## Integration with Workflow
 
 ```
+[Normal flow]
 self-review
     ↓ review.md created
     ↓ handoff → /clear → resume-work → user-review
@@ -173,6 +179,15 @@ import-pr-comments (this skill)
     ↓ comments added to review.md as Review Items
     ↓
 user-review (continues COLLECTING FEEDBACK)
+    ↓ user provides additional feedback or says "以上"
+    ↓ Implementation Phase
+
+[Direct invocation — no prior self-review]
+import-pr-comments (this skill)
+    ↓ review.md not found → auto-created via review-init-guide.md
+    ↓ PR comments imported as Review Items
+    ↓
+user-review (COLLECTING FEEDBACK)
     ↓ user provides additional feedback or says "以上"
     ↓ Implementation Phase
 ```

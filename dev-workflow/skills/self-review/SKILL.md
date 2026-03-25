@@ -1,30 +1,42 @@
 ---
 name: self-review
-description: This skill is invoked automatically after implementation completes. Should NOT be invoked directly by user. Orchestrates three parallel reviews (acceptance criteria, plan compliance, code quality) and provides unified feedback for self-correction.
+description: Orchestrates comprehensive self-review of implementation through specialized reviewers. Can be invoked directly or automatically after implementation completes.
 allowed-tools: Read, Write, Glob, Grep, Bash, Task, Skill
-user-invocable: false
+user-invocable: true
 ---
 
 # Self Review
 
 Orchestrate comprehensive review of implementation through parallel execution of specialized reviewers.
 
+**Trigger phrases**: "self-review", "セルフレビュー", "自動レビュー"
+
 ## Purpose
 
-Three parallel reviews for complete coverage:
-1. **Acceptance Criteria Review**: Verify each criterion from spec (acceptance-reviewer agent)
-2. **Plan Compliance Review**: Verify all planned changes are complete (plan-compliance-reviewer agent)
-3. **Code Quality Review**: Check for bugs, security issues, and code quality (feature-dev:code-reviewer agent)
+Comprehensive review of implementation through specialized reviewers. The review scope depends on the work level:
+
+- **Story**: Three parallel reviews (Acceptance Criteria, Plan Compliance, Code Quality)
+- **Task (with plan)**: Completion Criteria check (inline) + Code Quality review only
+- **Task (no plan)**: Code Quality review only (no Completion Criteria)
 
 ## Input
 
-- Spec document at `.claude/dev-workflow/story/{name}/spec.md`
-- Plan document at `.claude/dev-workflow/story/{name}/plan.md`
-- Completed implementation
+- **Story**: Spec at `.claude/dev-workflow/story/{name}/spec.md` + Plan at `.claude/dev-workflow/story/{name}/plan.md`
+- **Task (with plan)**: Active Claude Code plan file (from `.claude/plans/`)
+- **Task (no plan)**: Git diff of current branch changes (no plan file required)
 
 ## Process
 
-### 1. Invoke Reviewers (Parallel)
+### 0. Determine Work Level
+
+1. Check if `.claude/dev-workflow/story/{name}/spec.md` exists for any `{name}`
+   - If found → **Story flow** (proceed to Step 1)
+2. If not found → **Task flow**
+   - Identify the active plan file: Glob `.claude/plans/*.md` and find the plan with `**Work level**: Task` in its `## Workflow Context` section
+   - If active Task plan found → **Task (with plan)** flow (proceed to Step 1T)
+   - If no active Task plan found → **Task (no plan)** flow (proceed to Step 1T, skip 1T-a)
+
+### 1. Invoke Reviewers — Story Flow (Parallel)
 
 Launch three reviewers in parallel using Task tool:
 
@@ -38,6 +50,31 @@ Task 2: plan-compliance-reviewer (internal agent)
 - prompt: "Review implementation against plan. plan_path: {plan_path}"
 
 Task 3: feature-dev:code-reviewer (external agent)
+- subagent_type: feature-dev:code-reviewer
+- prompt: "Review code quality for the changes in this implementation"
+- Note: Skip if agent not available
+```
+
+### 1T. Invoke Reviewers — Task Flow
+
+For Task-level work, run two review steps:
+
+#### 1T-a. Completion Criteria Check (Inline)
+
+> **Skip this step if Task (no plan)** — proceed directly to 1T-b.
+
+Read the plan file's `### Completion Criteria` section. For each `- [ ]` item:
+1. Examine the implementation to determine if the criterion is met
+2. Mark as PASS, FAIL, or NEEDS REVIEW
+
+This check is performed inline (no agent needed).
+
+#### 1T-b. Code Quality Review
+
+Launch code-reviewer agent:
+
+```
+Task: feature-dev:code-reviewer (external agent)
 - subagent_type: feature-dev:code-reviewer
 - prompt: "Review code quality for the changes in this implementation"
 - Note: Skip if agent not available
@@ -79,6 +116,7 @@ After fixing, re-run self-review.
 
 If you use EnterPlanMode to fix issues, include a `## dev-workflow Context` block in the plan file (see `references/plan-mode-context.md` for full template):
 
+For Story:
 ```markdown
 ## dev-workflow Context
 **Active skill**: self-review (Self-Correct)
@@ -92,9 +130,37 @@ If you use EnterPlanMode to fix issues, include a `## dev-workflow Context` bloc
 Re-run self-review to verify fixes are effective.
 ```
 
+For Task (with plan):
+```markdown
+## dev-workflow Context
+**Active skill**: self-review (Self-Correct)
+**Phase**: Self-Review
+**Work level**: Task
+**Documents**:
+- Plan: {path to active plan file}
+
+### After This Plan Completes
+Re-run self-review to verify fixes are effective.
+```
+
+For Task (no plan):
+```markdown
+## dev-workflow Context
+**Active skill**: self-review (Self-Correct)
+**Phase**: Self-Review
+**Work level**: Task (no plan)
+**Documents**:
+- Review: .claude/dev-workflow/task/{branch-name}/review.md
+
+### After This Plan Completes
+Re-run self-review to verify fixes are effective.
+```
+
 ### 5. Create review.md (if no FAIL remains)
 
 When all results are PASS or NEEDS REVIEW (no FAIL), create review.md for the upcoming user-review phase:
+
+#### Story Flow
 
 1. Check for existing `.claude/dev-workflow/story/{name}/review.md` — if it exists, ask user before overwriting
 2. Read `references/review-template.md`
@@ -107,6 +173,36 @@ When all results are PASS or NEEDS REVIEW (no FAIL), create review.md for the up
    - **Resolved**: `0 / 0`
 4. Write to `.claude/dev-workflow/story/{name}/review.md`
 
+#### Task Flow (with plan)
+
+1. Derive task name from plan file's `# Plan: {name}` title (convert to kebab-case)
+2. Check for existing `.claude/dev-workflow/task/{name}/review.md` — if it exists, ask user before overwriting
+3. Read `references/review-template.md`
+4. Fill in the template:
+   - **Title**: From plan file title
+   - **Related Files**: Plan path only (no Spec)
+   - **Self-Review Results**: Completion Criteria + Code Quality results only (no Acceptance Criteria / Plan Compliance rows)
+   - **Review Items**: Empty (no user feedback yet)
+   - **Phase**: `COLLECTING FEEDBACK`
+   - **Resolved**: `0 / 0`
+5. Write to `.claude/dev-workflow/task/{name}/review.md`
+
+#### Task Flow (no plan)
+
+Follow `references/review-init-guide.md` to resolve metadata:
+
+1. Derive task name from git branch name (remove prefix, kebab-case)
+2. Check for existing `.claude/dev-workflow/task/{branch-name}/review.md` — if it exists, ask user before overwriting
+3. Read `references/review-template.md`
+4. Fill in the template:
+   - **Title**: From branch name (prefix removed)
+   - **Related Files**: No Spec or Plan lines (add comment `<!-- No plan file associated -->`)
+   - **Self-Review Results**: Code Quality results only (no Completion Criteria rows)
+   - **Review Items**: Empty (no user feedback yet)
+   - **Phase**: `COLLECTING FEEDBACK`
+   - **Resolved**: `0 / 0`
+5. Write to `.claude/dev-workflow/task/{branch-name}/review.md`
+
 ### 6. Invoke Handoff
 
 After review.md is created:
@@ -118,6 +214,8 @@ After review.md is created:
 The user can then copy the prompt, `/clear`, and paste to start user-review in a clean session.
 
 ## Output Format
+
+### Story Flow
 
 ```markdown
 ## Self Review Results
@@ -156,14 +254,79 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 {If all PASS or only NEEDS REVIEW: review.md created, handoff invoked — copy prompt, /clear, paste to start user-review}
 ```
 
+### Task Flow (with plan)
+
+```markdown
+## Self Review Results
+
+**Plan**: `{path to plan file}`
+
+### 1. Completion Criteria Check
+
+| # | Criterion | Result | Details |
+|---|-----------|--------|---------|
+| 1 | {criterion from plan} | PASS/FAIL/NEEDS REVIEW | {details} |
+
+### 2. Code Quality Review
+
+{Output from feature-dev:code-reviewer agent, or "Skipped (agent not available)" if unavailable}
+
+### Overall Summary
+
+| Review | PASS | FAIL | NEEDS REVIEW |
+|--------|------|------|--------------|
+| Completion Criteria | X | X | X |
+| Code: Bugs | X | X | X |
+| Code: Logic Errors | X | X | X |
+| Code: Security | X | X | X |
+| Code: Code Quality | X | X | X |
+| Code: Conventions | X | X | X |
+| **Total** | X | X | X |
+
+### Next Action
+
+{If any FAIL: specific fixes to apply, then re-run self-review}
+{If all PASS or only NEEDS REVIEW: review.md created, handoff invoked — copy prompt, /clear, paste to start user-review}
+```
+
+### Task Flow (no plan)
+
+```markdown
+## Self Review Results
+
+**Branch**: `{branch name}`
+
+### 1. Code Quality Review
+
+{Output from feature-dev:code-reviewer agent, or "Skipped (agent not available)" if unavailable}
+
+### Overall Summary
+
+| Review | PASS | FAIL | NEEDS REVIEW |
+|--------|------|------|--------------|
+| Code: Bugs | X | X | X |
+| Code: Logic Errors | X | X | X |
+| Code: Security | X | X | X |
+| Code: Code Quality | X | X | X |
+| Code: Conventions | X | X | X |
+| **Total** | X | X | X |
+
+### Next Action
+
+{If any FAIL: specific fixes to apply, then re-run self-review}
+{If all PASS or only NEEDS REVIEW: review.md created, handoff invoked — copy prompt, /clear, paste to start user-review}
+```
+
 ## Success Criteria
 
-- [ ] All three reviewers are invoked in parallel
+- [ ] Work level is correctly determined (Story or Task)
+- [ ] Story: All three reviewers are invoked in parallel
+- [ ] Task: Completion Criteria checked inline + code-reviewer invoked
 - [ ] Results are aggregated into unified report
 - [ ] Each FAIL includes actionable fix instruction
 - [ ] Feedback loop continues until no FAIL remains
 - [ ] Ready to proceed to user review (all PASS or only NEEDS REVIEW)
-- [ ] review.md is created at `.claude/dev-workflow/story/{name}/review.md`
+- [ ] review.md is created at `.claude/dev-workflow/story/{name}/review.md` (Story) or `.claude/dev-workflow/task/{name}/review.md` (Task)
 - [ ] Handoff skill is invoked to generate resume prompt
 
 ## Next Session
