@@ -1,6 +1,6 @@
 ---
 name: workflow-status
-description: Show overview of all active Epics and Stories with their current status. Use this to get a bird's-eye view of development progress before resuming work. Triggers on "/workflow-status", "show status", "what's in progress", "overview of work". Should NOT trigger for resuming a specific task (use resume-work) or starting new work (use explore-needs).
+description: Show overview of all active Epics and Stories with their current status. Use this to get a bird's-eye view of development progress before resuming work. Triggers on "/workflow-status", "show status", "what's in progress", "overview of work". Should NOT trigger for resuming a specific task (use resume-work) or starting new work (use kickoff).
 allowed-tools: Read, Glob, Grep
 user-invocable: true
 ---
@@ -26,7 +26,7 @@ If no documents are found at all, output:
 
 ```
 Active な作業はありません。
-`/new-task` で新しい作業を開始できます。
+`/dev-workflow:kickoff` で新しい作業を開始できます。
 ```
 
 Then stop.

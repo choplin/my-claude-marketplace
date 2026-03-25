@@ -1,7 +1,8 @@
 ---
 name: resume-work
-description: Use this skill to resume work on an existing Epic, Story, or Task. Triggers on phrases like "resume work", "continue previous task", "pick up where I left off", "what was I working on", or when user wants to continue existing development work. Should NOT trigger for starting new tasks (use explore-needs), or for discussion continuity without implementation artifacts.
+description: Use this skill to resume work on an existing Epic, Story, or Task. Triggers on phrases like "resume work", "continue previous task", "pick up where I left off", "what was I working on", or when user wants to continue existing development work. Should NOT trigger for starting new tasks (use kickoff), or for discussion continuity without implementation artifacts.
 allowed-tools: Read, Glob, Grep, AskUserQuestion, Skill, Bash
+user-invocable: true
 ---
 
 # Resume Work

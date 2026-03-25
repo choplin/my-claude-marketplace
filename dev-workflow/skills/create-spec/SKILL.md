@@ -1,6 +1,6 @@
 ---
 name: create-spec
-description: This skill is invoked ONLY from explore-needs when Story-level work is identified. Should NOT be invoked directly by user or auto-triggered by AI. Creates spec document with requirements and acceptance criteria.
+description: This skill is invoked ONLY from kickoff when Story-level work is identified. Should NOT be invoked directly by user or auto-triggered by AI. Creates spec document with requirements and acceptance criteria.
 allowed-tools: Read, Write, Glob, Grep, AskUserQuestion, Bash
 user-invocable: false
 ---
@@ -49,11 +49,11 @@ The spec survives /clear as the sole source of truth for the next session.
 
 ## Input
 
-This skill receives Why/What context from explore-needs interview via session history.
+This skill receives Why/What context from kickoff interview via session history.
 
 ## Process
 
-### 1. Confirm Why/What from explore-needs
+### 1. Confirm Why/What from kickoff
 
 Review the interview results:
 - **Why**: Background, motivation, problem being solved
@@ -131,10 +131,10 @@ Use the Story directory name as the branch name: `{prefix}/{story-name}`
 - **Epic**: `.claude/dev-workflow/epic/{parent}/epic.md` (if part of an Epic)
 
 ## Why
-{Background, motivation, problem being solved - from explore-needs interview}
+{Background, motivation, problem being solved - from kickoff interview}
 
 ## What
-{User Needs to satisfy - from explore-needs interview}
+{User Needs to satisfy - from kickoff interview}
 
 ## Requirements
 {Specific requirements derived from User Needs}
@@ -170,7 +170,7 @@ After user approves the spec, create the git branch:
 
 ## Success Criteria
 
-- [ ] Why/What from explore-needs is captured
+- [ ] Why/What from kickoff is captured
 - [ ] Requirements are MECE relative to User Needs (see Purpose for what spec is NOT)
 - [ ] Acceptance criteria are in Gherkin format
 - [ ] Acceptance criteria are few and focused (prefer 3-5 over 10+)

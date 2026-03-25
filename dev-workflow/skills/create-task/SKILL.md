@@ -1,6 +1,6 @@
 ---
 name: create-task
-description: Internal skill called by explore-needs after Task assessment. Creates a task-level plan with full Why/What context for potential Story promotion. Should NOT be invoked directly by users.
+description: Internal skill called by kickoff after Task assessment. Creates a task-level plan with full Why/What context for potential Story promotion. Should NOT be invoked directly by users.
 allowed-tools: Read, Write, Glob, Grep
 ---
 
@@ -10,20 +10,20 @@ Create a task-level implementation plan with full Why/What context, enabling Sto
 
 ## Purpose
 
-Structure the Why/What information from explore-needs interview into Claude Code plan file format. This ensures that if the Task is later promoted to Story, all context is preserved in the plan file.
+Structure the Why/What information from kickoff interview into Claude Code plan file format. This ensures that if the Task is later promoted to Story, all context is preserved in the plan file.
 
 **Key insight**: The plan file is the ONLY surviving context after session clear. If Why/What is omitted (as Plan mode defaults to How-focused plans), Story promotion loses critical information.
 
 ## Prerequisites
 
-- explore-needs has completed interview and determined Task level
+- kickoff has completed interview and determined Task level
 - Why/What information is available in session history
 
 ## Process
 
 ### Step 1: Receive Context
 
-The explore-needs skill has already confirmed:
+The kickoff skill has already confirmed:
 - **Why**: Background, motivation, problem to solve
 - **What**: Implementation target + completion criteria
 
@@ -71,14 +71,14 @@ If implementation reveals unexpected complexity, promote to Story:
 
 ## Why (Background & Purpose)
 
-[User-confirmed background and motivation from explore-needs interview]
+[User-confirmed background and motivation from kickoff interview]
 
 **Problem being solved**: [Specific problem statement]
 **Why now**: [Urgency or trigger for this task]
 
 ## What (Implementation Target)
 
-[User-confirmed implementation target from explore-needs interview]
+[User-confirmed implementation target from kickoff interview]
 
 ### Completion Criteria
 
@@ -111,7 +111,7 @@ Call ExitPlanMode to request user approval of the plan.
 
 ## Critical: No AI Filling
 
-**Every piece of information in Why/What sections must come from the explore-needs interview.**
+**Every piece of information in Why/What sections must come from the kickoff interview.**
 
 **OK (information consolidation):**
 - Summarizing multiple user statements into one sentence
@@ -128,8 +128,8 @@ The How section can be derived from code investigation, but Why/What must be use
 
 ## Success Criteria
 
-- [ ] Why section contains specific problem/motivation from explore-needs interview
-- [ ] What section contains measurable completion criteria from explore-needs interview
+- [ ] Why section contains specific problem/motivation from kickoff interview
+- [ ] What section contains measurable completion criteria from kickoff interview
 - [ ] How section is based on actual code investigation (not generic steps)
 - [ ] Plan file is self-contained (can be understood without session history)
 - [ ] All Why/What information is preserved for potential Story promotion
@@ -137,9 +137,9 @@ The How section can be derived from code investigation, but Why/What must be use
 
 ## Trigger
 
-This skill is invoked ONLY by explore-needs after Task assessment.
+This skill is invoked ONLY by kickoff after Task assessment.
 
-**Do NOT invoke directly** - if user calls this skill directly, redirect to explore-needs first.
+**Do NOT invoke directly** - if user calls this skill directly, redirect to kickoff first.
 
 ## Next Session
 

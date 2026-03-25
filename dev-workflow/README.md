@@ -18,7 +18,7 @@ A plugin that systematizes development workflows with Claude Code. Supports work
 
 | Skill | Description |
 |-------|-------------|
-| `explore-needs` | Explore user needs through dialogue and route to appropriate workflow |
+| `kickoff` | Explore user needs through dialogue and route to appropriate workflow |
 | `create-task` | Create task-level plan with full Why/What context |
 | `create-epic` | Create epic document (manage multiple stories) |
 | `create-spec` | Create spec document (AI self-reviewable acceptance criteria) |
@@ -39,7 +39,7 @@ A plugin that systematizes development workflows with Claude Code. Supports work
 
 ## Typical Workflow (Story Level)
 
-1. Explore user needs with `explore-needs`
+1. Explore user needs with `kickoff`
 2. Create spec document with `create-spec`
 3. Create implementation plan with `create-plan`
 4. (Session can be cleared)

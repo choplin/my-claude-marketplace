@@ -1,6 +1,7 @@
 ---
 name: dig
 description: This skill should be used when the user's intent is unclear and needs to be clarified before proceeding. Triggers when user request lacks specifics (e.g., "create X" without details), when AI would need to make assumptions to proceed, or when user explicitly calls "/dig". Also used as a base skill by other skills. Should NOT trigger for quick decisions with clear context (use quick-chat), or when requirements are already well-defined. 「意図が不明確」「曖昧な依頼」「詳細を確認したい」
+user-invocable: true
 ---
 
 # dig - Intent Clarification

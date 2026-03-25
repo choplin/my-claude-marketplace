@@ -174,7 +174,7 @@ The Story directory name (e.g., `add-auth`) becomes the branch name (e.g., `feat
 
 | Phase | Skill | Purpose |
 |-------|-------|---------|
-| Understand | `explore-needs` | Explore user needs, route to Task/Story/Epic |
+| Understand | `kickoff` | Explore user needs, route to Task/Story/Epic |
 | Document (Task) | `create-task` | Create task-level plan with Why/What context |
 | Document (Story) | `create-spec` → `create-plan` | Create spec then implementation plan |
 | Document (Epic) | `create-epic` | Decompose into Stories |

@@ -1,6 +1,6 @@
 ---
 name: create-epic
-description: This skill is invoked ONLY from explore-needs when Epic-level work is identified. Should NOT be invoked directly by user or auto-triggered by AI. Creates epic document by decomposing large work into independent Stories.
+description: This skill is invoked ONLY from kickoff when Epic-level work is identified. Should NOT be invoked directly by user or auto-triggered by AI. Creates epic document by decomposing large work into independent Stories.
 allowed-tools: Read, Write, Glob, Grep, AskUserQuestion
 user-invocable: false
 ---
@@ -19,7 +19,7 @@ Epic documents are NOT primarily for:
 
 ## Input
 
-This skill receives Why/What context from explore-needs interview via session history.
+This skill receives Why/What context from kickoff interview via session history.
 
 ## Story Independence Criteria
 
@@ -33,7 +33,7 @@ A Story is independent when:
 
 ## Process
 
-### 1. Confirm Why/What from explore-needs
+### 1. Confirm Why/What from kickoff
 
 Review the interview results:
 - **Why**: Background, motivation, problem being solved
@@ -91,7 +91,7 @@ Identify the first Story with no dependencies and suggest starting create-spec f
 
 ## Success Criteria
 
-- [ ] Why/What from explore-needs is captured in Overview/Background/Goal
+- [ ] Why/What from kickoff is captured in Overview/Background/Goal
 - [ ] Each Story can be implemented in a separate session
 - [ ] Each Story's What is expressible in one sentence
 - [ ] Dependencies between Stories are documented
@@ -104,4 +104,4 @@ After epic is created:
 **Reference**: `.claude/dev-workflow/epic/{name}/epic.md`
 **Next phase**: `create-spec` for first Story (one with no dependencies)
 
-Read the epic file, identify the first Story to implement, and invoke `explore-needs` or `create-spec` for that Story.
+Read the epic file, identify the first Story to implement, and invoke `kickoff` or `create-spec` for that Story.
