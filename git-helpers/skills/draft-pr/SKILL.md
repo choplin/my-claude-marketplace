@@ -1,45 +1,69 @@
 ---
 name: draft-pr
 description: Use this skill when the user wants to create a draft PR. Triggers on phrases like "draft PRを作って", "draft PRを作成", "ドラフトPRを開いて", "draft PR作って", or when the user wants to push and open a PR in draft mode.
-allowed-tools: Bash(git *), Bash(gh *)
+allowed-tools: Bash(git *), Bash(gh *), Read, Glob
 user-invocable: true
 ---
 
-# Draft PR 作成
+# Draft PR Creation
 
-現在のブランチを push し、ドラフトモードで PR を作成する。
+Push the current branch and create a PR in draft mode.
 
-## 必要情報
+## Language
 
-1. **現在のブランチ**: main/master 以外であること
-2. **リモートの状態**: push が必要かどうか
-3. **PR テンプレート**: `.github/pull_request_template.md` の有無
+- PR title and body MUST be written in **English** by default
+- Only use a different language if the user explicitly requests it
 
-## プロセス
+## Process
 
-1. **ブランチ確認**
-   - 現在のブランチが main/master でないことを確認
-   - main/master の場合はエラーとして停止
+### 1. Branch Check
 
-2. **PR テンプレート確認**
-   - `.github/pull_request_template.md` を探す
-   - 存在する場合はその内容を読み込む
+- Verify the current branch is NOT main/master
+- If on main/master, stop with an error
 
-3. **Push 実行**
-   - `git push -u origin <branch>` でリモートに push
-   - 既に push 済みの場合はスキップ
+### 2. PR Template Check (MANDATORY - DO NOT SKIP)
 
-4. **Draft PR 作成**
-   - `gh pr create --draft` でドラフト PR を作成
-   - テンプレートがある場合はその形式に従って body を作成
-   - タイトルはコミットメッセージや変更内容から適切に生成
+Search for the PR template in this order:
 
-5. **結果報告**
-   - 作成した PR の URL を報告
+1. `.github/pull_request_template.md`
+2. `.github/PULL_REQUEST_TEMPLATE.md`
+3. `docs/pull_request_template.md`
+4. `pull_request_template.md`
 
-## テンプレート対応
+Also check for multiple templates in `.github/PULL_REQUEST_TEMPLATE/` directory.
 
-PR テンプレートが存在する場合：
-- テンプレートの各セクションを適切に埋める
-- 変更内容を分析して Summary/Description セクションを作成
-- Test Plan がある場合はテスト方法を記載
+**If a template is found:**
+- Read its full content
+- You MUST use it as the structure for the PR body
+- Fill in every section of the template — do NOT skip, remove, or reorder any sections
+- If a section is not applicable, write "N/A" instead of omitting it
+
+**If no template is found:**
+- Use the default format described in the "Default PR Body Format" section below
+
+### 3. Push
+
+- Run `git push -u origin <branch>`
+- Skip if already pushed and up to date
+
+### 4. Create Draft PR
+
+- Run `gh pr create --draft`
+- Title: generate from commit messages and change summary (in English)
+- Body: use the PR template if found (step 2), otherwise use default format
+
+### 5. Report Result
+
+- Report the created PR URL
+
+## Default PR Body Format
+
+Use this format only when no PR template exists in the repository:
+
+```
+## Summary
+<1-3 bullet points describing the changes>
+
+## Test Plan
+<How to verify the changes>
+```
