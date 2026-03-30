@@ -32,63 +32,24 @@ Rules:
 
 ## Interview Process
 
-### Philosophy (from skill-authoring)
+### Use dig for Intent Clarification
 
-- Ask questions that probe deeper than surface requirements
-  - Avoid questions answerable from the request itself
-  - Instead, ask about motivation, trade-offs, past failures
-  - Example: User says "Add logging"
-    - Obvious (skip): "Should we add logging?" (user already said this)
-    - Not obvious (ask): "What debugging problem led you to need logging?"
-- User can say "complete" at any time to end interview early
-- If AI judges intent is sufficiently clear, confirm with user before proceeding
-- **Never accept vague answers** - always follow up for specifics
-  - Problem: Adjectives without criteria lead to AI filling. When user says "clean code",
-    AI fills with generic best practices that don't reflect user's actual pain points.
-  - Detection: Answers contain adjectives without measurable criteria
-    (e.g., "clean", "good", "proper", "appropriate", "reasonable")
-  - Response: Ask for the concrete problem these adjectives solve
-    - User: "The code should be maintainable"
-    - AI: "What maintenance problem occurred that this would solve?"
+Use the Skill tool to call `discuss-toolkit:dig` as a base skill to clarify user intent.
 
-### Interview Content
+**Context to provide to dig**:
+- Subject: User's development task requirements
+- Purpose: Need to understand Why (motivation/problem) and What (implementation target/completion criteria) to assess task complexity
+- The goal is to determine whether Criteria can be written directly from User Needs
 
-Focus on two layers:
-
-**Context Layer (always required):**
-
-| Item | Description | Example Questions |
-|------|-------------|-------------------|
-| **Why** | Background, motivation, problem to solve | "What problem does this solve?", "Why is this important now?", "What happens if we don't do this?" |
-| **What** | Implementation target + completion criteria | "What specifically needs to be built?", "How will you know it's done?", "What does success look like?" |
-
-**Approach Layer (for determining Task vs Story):**
-
-| Check | Result |
-|-------|--------|
-| Can you write "done" criteria directly from the user's request? | Yes → Task, No → Story |
-| Do you need to ask "what kind of X?" before defining success? | Yes → Story |
-| Are there multiple approaches that need trade-off discussion? | Yes → Story |
-
-**Key insight**: "Multiple implementation choices" is a SYMPTOM, not the cause.
-The root cause is "Cannot derive Criteria directly from Needs."
-
-### Interview Completion
-
-Continue until:
-1. Why is concrete with specific problem/motivation
-2. What is specific with measurable completion criteria
-3. Enough information to determine Task/Story/Epic
-
-Then confirm: "I have enough to assess. Ready to proceed, or anything else?"
+**When dig completes**: Proceed to Assessment Criteria with the clarified understanding.
 
 ## Assessment Criteria
 
 | Level | Criterion | Output |
 |-------|-----------|--------|
-| **Task** | Criteria writable directly from User Needs (no Requirements clarification needed) | Launch `create-task` skill |
-| **Story** | Requirements clarification needed before Criteria (need to decide "what kind" before "done") | Launch `create-spec` skill |
-| **Epic** | Multiple independent Stories (What has multiple parts) | Launch `create-epic` skill |
+| **Task** | Criteria writable directly from User Needs (no Requirements clarification needed) | Use Skill tool: `dev-workflow:create-task` |
+| **Story** | Requirements clarification needed before Criteria (need to decide "what kind" before "done") | Use Skill tool: `dev-workflow:create-spec` |
+| **Epic** | Multiple independent Stories (What has multiple parts) | Use Skill tool: `dev-workflow:create-epic` |
 
 **Examples**:
 - Task: "Fix this bug" → Criteria "Bug fixed, tests pass" - directly writable
@@ -115,7 +76,7 @@ Then confirm: "I have enough to assess. Ready to proceed, or anything else?"
 
 ### If Task
 
-Invoke `dev-workflow:create-task` skill.
+**You MUST use the Skill tool** to call `dev-workflow:create-task`. Do NOT proceed with implementation yourself.
 
 The create-task skill will:
 1. Receive Why/What context from this interview (via session history)
@@ -124,15 +85,19 @@ The create-task skill will:
 
 ### If Story
 
-Invoke `dev-workflow:create-spec` skill.
+**You MUST use the Skill tool** to call `dev-workflow:create-spec`. Do NOT proceed with spec creation yourself.
 
 The create-spec skill will receive the interview context via session history.
 
 ### If Epic
 
-Invoke `dev-workflow:create-epic` skill.
+**You MUST use the Skill tool** to call `dev-workflow:create-epic`. Do NOT proceed with epic decomposition yourself.
 
 The create-epic skill will receive the interview context via session history.
+
+### Anti-pattern: Skipping Skill dispatch
+
+**NEVER** start implementation, planning, or document creation directly after assessment. You MUST always use the Skill tool to dispatch to the appropriate skill. Using Plan tool, Write tool, or any other tool to do the work yourself instead of dispatching is a critical error.
 
 ## Promotion Flow
 
@@ -146,7 +111,7 @@ Task → Story promotion is a **normal flow**, not a failure.
 **When promoting**:
 - Why/What from Plan carry over to spec (this is why create-task includes full Why/What)
 - Document the How decisions made so far
-- Invoke `create-spec` with existing Plan context
+- Use the Skill tool to call `dev-workflow:create-spec` with existing Plan context
 
 ## Success Criteria
 
