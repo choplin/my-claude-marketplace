@@ -1,0 +1,3 @@
+[submodule "moonbit/_upstream/skills"]
+	path = moonbit/_upstream/skills
+	url = https://github.com/moonbitlang/skills.git
