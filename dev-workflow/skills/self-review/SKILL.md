@@ -55,6 +55,26 @@ Task 3: feature-dev:code-reviewer (external agent)
 - Note: Skip if agent not available
 ```
 
+### 1C. Codex Code Review (All Flows)
+
+After the parallel reviewers complete (Story) or after code quality review (Task), invoke Codex review:
+
+```
+Skill(skill: "codex:review", args: "--wait")
+```
+
+- `--wait`: Run in foreground to get results inline
+- **Skip if Codex CLI is not available** (e.g., command not found error). Treat as PASS and note "Skipped (Codex CLI not available)" in output.
+
+#### Verdict Mapping
+
+| Codex Verdict | Finding Severities | Self-Review Status |
+|---|---|---|
+| `approve` | (none) | PASS |
+| `needs-attention` | any `critical` or `high` | FAIL |
+| `needs-attention` | only `medium`/`low` | NEEDS REVIEW |
+| Skipped/Error | N/A | PASS (not counted) |
+
 ### 1T. Invoke Reviewers — Task Flow
 
 For Task-level work, run two review steps:
@@ -95,6 +115,7 @@ Combine outputs from all reviewers into unified report.
 | Code: Security | No issues found |
 | Code: Code Quality | No HIGH severity issues |
 | Code: Conventions | No issues found |
+| Codex Review | Verdict "approve", or skipped, or only medium/low findings |
 
 Overall PASS requires all reviewers to pass.
 
@@ -105,6 +126,7 @@ This is a feedback loop. If any FAIL exists:
 1. **Acceptance FAIL**: Fix implementation to meet criteria
 2. **Plan FAIL**: Complete missing steps/file changes
 3. **Code Quality FAIL**: Fix identified issues
+4. **Codex Review FAIL**: Fix critical/high severity findings identified by Codex
 
 After fixing, re-run self-review.
 
@@ -235,6 +257,10 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 
 {Output from feature-dev:code-reviewer agent, or "Skipped (agent not available)" if unavailable}
 
+### 4. Codex Code Review
+
+{Output from codex:review, or "Skipped (Codex CLI not available)" if unavailable}
+
 ### Overall Summary
 
 | Review | PASS | FAIL | NEEDS REVIEW |
@@ -246,6 +272,7 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 | Code: Security | X | X | X |
 | Code: Code Quality | X | X | X |
 | Code: Conventions | X | X | X |
+| Codex Review | X | X | X |
 | **Total** | X | X | X |
 
 ### Next Action
@@ -271,6 +298,10 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 
 {Output from feature-dev:code-reviewer agent, or "Skipped (agent not available)" if unavailable}
 
+### 3. Codex Code Review
+
+{Output from codex:review, or "Skipped (Codex CLI not available)" if unavailable}
+
 ### Overall Summary
 
 | Review | PASS | FAIL | NEEDS REVIEW |
@@ -281,6 +312,7 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 | Code: Security | X | X | X |
 | Code: Code Quality | X | X | X |
 | Code: Conventions | X | X | X |
+| Codex Review | X | X | X |
 | **Total** | X | X | X |
 
 ### Next Action
@@ -300,6 +332,10 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 
 {Output from feature-dev:code-reviewer agent, or "Skipped (agent not available)" if unavailable}
 
+### 2. Codex Code Review
+
+{Output from codex:review, or "Skipped (Codex CLI not available)" if unavailable}
+
 ### Overall Summary
 
 | Review | PASS | FAIL | NEEDS REVIEW |
@@ -309,6 +345,7 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 | Code: Security | X | X | X |
 | Code: Code Quality | X | X | X |
 | Code: Conventions | X | X | X |
+| Codex Review | X | X | X |
 | **Total** | X | X | X |
 
 ### Next Action
@@ -327,6 +364,8 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 - [ ] Feedback loop continues until no FAIL remains
 - [ ] Ready to proceed to user review (all PASS or only NEEDS REVIEW)
 - [ ] review.md is created at `.claude/dev-workflow/story/{name}/review.md` (Story) or `.claude/dev-workflow/task/{name}/review.md` (Task)
+- [ ] Codex review is invoked via Skill tool (when available)
+- [ ] Codex unavailability does not block self-review
 - [ ] Handoff skill is invoked to generate resume prompt
 
 ## Next Session
