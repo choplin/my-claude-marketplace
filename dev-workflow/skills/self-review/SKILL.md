@@ -64,6 +64,7 @@ Skill(skill: "codex:review", args: "--wait")
 ```
 
 - `--wait`: Run in foreground to get results inline
+- **IMPORTANT**: `codex:review` is a command and must be invoked via the Skill tool. Do NOT use the `codex:codex-rescue` agent (Agent tool) — rescue runs `task`, not `review`, and will modify files.
 - **Skip if Codex CLI is not available** (e.g., command not found error). Treat as PASS and note "Skipped (Codex CLI not available)" in output.
 
 #### Verdict Mapping
