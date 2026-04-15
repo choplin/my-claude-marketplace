@@ -114,7 +114,7 @@ Wait for user confirmation before writing to review.md.
    ### Item {N}: {comment summary}
    - **Status**: APPROACH RECORDED | OPEN
    - **Classification**: Minor | Complex | Design Change
-   - **Source**: PR #{number} - @{author} ({inline|review-body})
+   - **Source**: PR #{number} comment:{commentId} - @{author} ({inline|review-body})
    - **Feedback**: {comment body}
    - **File**: `{path}` L{line}
    - **Approach**: WHERE: {file:line} / WHAT: {specific change}
