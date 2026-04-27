@@ -37,12 +37,14 @@ After addressing review items imported from a PR, the developer needs to reply t
 ### 2. Collect Unreplied Items
 
 1. Read all Review Items that have a `Source` field containing `PR #`.
-2. Read the metadata comment at the end of review.md:
+2. **Default scope: inline only** — Unless the user explicitly requests to include review-body comments, filter to items whose Source contains `(inline)`. Skip items with `(review-body)`.
+   - Trigger phrases for including review-body: "review-bodyも含めて", "全コメントに返信", "include review-body", "reply to all"
+3. Read the metadata comment at the end of review.md:
    ```
    <!-- replied-pr-comments: ["id1","id2",...] -->
    ```
-3. Filter out items whose comment ID is already in the replied list.
-4. If no unreplied items remain: report "All PR comments have been replied to." and stop.
+4. Filter out items whose comment ID is already in the replied list.
+5. If no unreplied items remain: report "All PR comments have been replied to." and stop.
 
 ### 3. Resolve Commit References
 
@@ -90,6 +92,7 @@ Present all drafts to the user for review:
 ## PR Comment Reply Drafts
 
 **PR**: #{number}
+**Scope**: inline comments only (include review-body with "全コメントに返信")
 **Unreplied items**: {count}
 
 | # | Item | Reply |
@@ -156,3 +159,4 @@ For each reply:
 | Adding pleasantries | Wastes reviewer's time | State facts only |
 | Guessing commit references | Wrong commit ref is worse than none | Only include commit SHA when confidently matched |
 | Replying to already-replied comments | Creates duplicate replies | Check replied-pr-comments metadata |
+| Replying to review-body by default | Review-body replies appear as standalone PR comments, not threaded — unclear which comment is being addressed | Only reply to inline comments by default; include review-body only on explicit request |
