@@ -63,7 +63,7 @@ For each unreplied item, generate a reply based on its resolution:
 Format: what was done + commit reference.
 
 ```
-{one-sentence description of what was changed}. Fixed in {sha}.
+{one-sentence description using markdown: identifiers in `backticks`, links as [text](url)}. Fixed in {sha}.
 ```
 
 #### Addressed without code changes
@@ -140,6 +140,12 @@ For each reply:
 - **Commit references**: use short SHA (7 chars), e.g., `abc1234`
 - **Declined items**: state the reason directly without being defensive
 - **Language**: match the language of the original comment
+- **Markdown formatting**: replies are rendered as markdown on GitHub, so use proper formatting:
+  - Identifiers (function names, variable names, type names) in `` ` `` backticks
+  - File paths in `` ` `` backticks
+  - Commit SHAs are NOT backtick-wrapped (GitHub auto-links them)
+  - URL links as `[text](url)`
+  - Code snippets in fenced code blocks (`` ``` ``)
 
 ## Anti-patterns to Avoid
 
