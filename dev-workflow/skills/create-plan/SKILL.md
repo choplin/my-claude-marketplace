@@ -36,7 +36,7 @@ Plan should NOT contain:
 
 ## Input
 
-This skill is invoked after create-spec completes. The spec document at `.claude/dev-workflow/story/{name}/spec.md` is the input.
+This skill is invoked after create-spec completes. The spec document at `.claude/dev-workflow/story/{story-dir}/spec.md` is the input (`{story-dir}` = `{yyyy-mm-dd}-{prefix}-{story-name}`).
 
 ## Process
 
@@ -63,7 +63,7 @@ Create steps following these principles:
 
 ### 4. Create Plan Document
 
-Create `.claude/dev-workflow/story/{name}/plan.md`:
+Create `.claude/dev-workflow/story/{story-dir}/plan.md`:
 
 ```markdown
 # Plan: {title}
@@ -71,9 +71,9 @@ Create `.claude/dev-workflow/story/{name}/plan.md`:
 ## Related Files
 
 - **Workflow concepts**: `dev-workflow/docs/workflow-concepts.md`
-- **Spec**: `.claude/dev-workflow/story/{name}/spec.md`
+- **Spec**: `.claude/dev-workflow/story/{story-dir}/spec.md`
 - **Branch**: `{prefix}/{story-name}` (from spec)
-- **Epic**: `.claude/dev-workflow/epic/{parent}/epic.md` (if part of an Epic)
+- **Epic**: `.claude/dev-workflow/epic/{epic-dir}/epic.md` (if part of an Epic)
 
 ## Workflow Context
 
@@ -127,7 +127,7 @@ Present plan to user for approval before proceeding.
 
 ## Success Criteria
 
-- [ ] Plan document is created at `.claude/dev-workflow/story/{name}/plan.md`
+- [ ] Plan document is created at `.claude/dev-workflow/story/{story-dir}/plan.md`
 - [ ] Spec is referenced
 - [ ] Files to change are listed
 - [ ] Steps are in dependency order
@@ -141,8 +141,8 @@ Present plan to user for approval before proceeding.
 After plan is approved:
 
 **Reference**:
-- `.claude/dev-workflow/story/{name}/spec.md`
-- `.claude/dev-workflow/story/{name}/plan.md`
+- `.claude/dev-workflow/story/{story-dir}/spec.md`
+- `.claude/dev-workflow/story/{story-dir}/plan.md`
 
 **Next phase**: Implementation
 

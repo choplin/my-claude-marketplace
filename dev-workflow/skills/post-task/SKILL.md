@@ -86,7 +86,7 @@ Based on this session, I recommend capturing the following:
 ### Design Doc Candidates
 
 1. **{spec/plan}**: {why it has lasting value}
-   - Location: `.claude/dev-workflow/story/{name}/spec.md`
+   - Location: `.claude/dev-workflow/story/{story-dir}/spec.md`
 
 ---
 
@@ -105,7 +105,7 @@ Which items would you like me to capture?
 After post-task completes:
 
 **If part of Epic**:
-- **Reference**: `.claude/dev-workflow/epic/{name}/epic.md`
+- **Reference**: `.claude/dev-workflow/epic/{epic-dir}/epic.md`
 - **Next phase**: `create-spec` for next Story
 
 **If standalone Story/Task**:

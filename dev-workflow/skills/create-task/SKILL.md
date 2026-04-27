@@ -47,8 +47,8 @@ Write to the plan file with this structure:
 ## Related Files
 
 - **Workflow concepts**: `dev-workflow/docs/workflow-concepts.md`
-- **Spec**: `.claude/dev-workflow/story/{name}/spec.md` (if promoted from Task)
-- **Epic**: `.claude/dev-workflow/epic/{parent}/epic.md` (if part of an Epic)
+- **Spec**: `.claude/dev-workflow/story/{story-dir}/spec.md` (if promoted from Task)
+- **Epic**: `.claude/dev-workflow/epic/{epic-dir}/epic.md` (if part of an Epic)
 
 ## Workflow Context
 

@@ -105,8 +105,8 @@ Output the status overview in this format:
 - Sort Stories alphabetically by name
 - If no Epics exist, omit the Epics section entirely
 - If no Stories exist, omit the Stories section entirely
-- Epic name is the directory name (from the path `.claude/dev-workflow/epic/{name}/epic.md`)
-- Story name is the directory name (from the path `.claude/dev-workflow/story/{name}/spec.md`)
+- Epic name is the directory name (from the path `.claude/dev-workflow/epic/{epic-dir}/epic.md`), formatted as `{yyyy-mm-dd}-{epic-name}`
+- Story name is the directory name (from the path `.claude/dev-workflow/story/{story-dir}/spec.md`), formatted as `{yyyy-mm-dd}-{prefix}-{story-name}`
 
 ## Success Criteria
 

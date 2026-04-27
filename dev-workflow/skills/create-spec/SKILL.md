@@ -101,7 +101,7 @@ Explicitly state what this spec does NOT include. This prevents scope creep duri
 
 ### 5. Create Spec Document
 
-Create `.claude/dev-workflow/story/{name}/spec.md`:
+#### 5a. Determine Branch Name and Directory Name
 
 **Branch name**: Determine the prefix from the Why/What content:
 
@@ -115,7 +115,19 @@ Create `.claude/dev-workflow/story/{name}/spec.md`:
 | Build/CI/tooling | `chore/` |
 | Performance | `perf/` |
 
-Use the Story directory name as the branch name: `{prefix}/{story-name}`
+Branch name: `{prefix}/{story-name}` (e.g., `feat/add-auth`)
+
+**Directory name**: Derived from branch name with date prefix:
+
+1. Take the branch name `{prefix}/{story-name}` (e.g., `feat/add-auth`)
+2. Replace `/` with `-` (e.g., `feat-add-auth`)
+3. Prepend today's date as `{yyyy-mm-dd}-` (e.g., `2026-04-22-feat-add-auth`)
+
+Result: `.claude/dev-workflow/story/{yyyy-mm-dd}-{prefix}-{story-name}/`
+
+#### 5b. Create Spec File
+
+Create `.claude/dev-workflow/story/{story-dir}/spec.md` where `{story-dir}` is the directory name from step 5a:
 
 ```markdown
 # Spec: {title}
@@ -128,7 +140,7 @@ Use the Story directory name as the branch name: `{prefix}/{story-name}`
 ## Related Files
 
 - **Workflow concepts**: `dev-workflow/docs/workflow-concepts.md`
-- **Epic**: `.claude/dev-workflow/epic/{parent}/epic.md` (if part of an Epic)
+- **Epic**: `.claude/dev-workflow/epic/{epic-dir}/epic.md` (if part of an Epic)
 
 ## Why
 {Background, motivation, problem being solved - from kickoff interview}
@@ -178,12 +190,13 @@ After user approves the spec, create the git branch:
 - [ ] Out of Scope is explicitly stated
 - [ ] User has approved the spec
 - [ ] Branch is created and checked out (or user opted to skip)
+- [ ] Directory name matches `{yyyy-mm-dd}-{prefix}-{story-name}` format
 
 ## Next Session
 
 After spec is approved and branch is created:
 
-**Reference**: `.claude/dev-workflow/story/{name}/spec.md`
+**Reference**: `.claude/dev-workflow/story/{story-dir}/spec.md` (where `{story-dir}` = `{yyyy-mm-dd}-{prefix}-{story-name}`)
 **Branch**: `{prefix}/{story-name}` (checkout if not already on it)
 **Next phase**: `create-plan`
 

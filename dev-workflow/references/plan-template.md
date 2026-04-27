@@ -1,6 +1,6 @@
 # Plan: {plan-name}
 
-**Related spec**: `.claude/dev-workflow/story/{name}/spec.md`
+**Related spec**: `.claude/dev-workflow/story/{story-dir}/spec.md`
 **Branch**: `{prefix}/{story-name}` (from spec)
 
 ## Workflow Context

@@ -5,8 +5,8 @@
 <!-- Story: include both Spec and Plan -->
 <!-- Task (with plan): include Plan only (path to Claude Code plan file) -->
 <!-- Task (no plan): omit both lines, or replace with a comment -->
-- **Spec**: `.claude/dev-workflow/story/{name}/spec.md`
-- **Plan**: `.claude/dev-workflow/story/{name}/plan.md`
+- **Spec**: `.claude/dev-workflow/story/{story-dir}/spec.md`
+- **Plan**: `.claude/dev-workflow/story/{story-dir}/plan.md`
 
 ## Self-Review Results
 

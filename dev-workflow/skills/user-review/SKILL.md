@@ -42,7 +42,7 @@ These issues cause rework and frustration.
 ## Input
 
 - Self-review results (from self-review skill, if available)
-- **Story**: Spec document at `.claude/dev-workflow/story/{name}/spec.md`
+- **Story**: Spec document at `.claude/dev-workflow/story/{story-dir}/spec.md`
 - **Task (with plan)**: Plan file (path from review.md's `## Related Files`)
 - **Task (no plan)**: Git diff of current branch changes
 
@@ -53,8 +53,8 @@ These issues cause rework and frustration.
 Before starting, check for existing review state:
 
 1. Look for `review.md` at:
-   - `.claude/dev-workflow/story/{name}/review.md` (Story)
-   - `.claude/dev-workflow/task/{name}/review.md` (Task — includes both "with plan" and "no plan")
+   - `.claude/dev-workflow/story/{story-dir}/review.md` (Story)
+   - `.claude/dev-workflow/task/{task-dir}/review.md` (Task — includes both "with plan" and "no plan")
 2. If **review.md exists**, read it and resume based on Phase:
    - `COLLECTING FEEDBACK`: Show summary of recorded items (if any) and current state — including any PR-imported items (with `Source` field) that are `OPEN` or `APPROACH RECORDED` — then wait for next feedback
    - `READY FOR IMPLEMENTATION`: Show item summary, then proceed to Implementation Phase (Step 5)
@@ -231,7 +231,7 @@ Feedback that requires changes beyond the current spec's scope.
 **How to identify Design Change**:
 
 For **Story** (check spec file):
-1. Read current spec at `.claude/dev-workflow/story/{name}/spec.md`
+1. Read current spec at `.claude/dev-workflow/story/{story-dir}/spec.md`
 2. Compare feedback against spec's "Success Criteria" and "Requirements"
 3. If feedback requires NEW success criteria or changes EXISTING criteria → Design Change
 
@@ -299,9 +299,9 @@ For Story:
 **Phase**: User-Review
 **Work level**: Story
 **Documents**:
-- Spec: .claude/dev-workflow/story/{name}/spec.md
-- Plan: .claude/dev-workflow/story/{name}/plan.md
-- Review: .claude/dev-workflow/story/{name}/review.md
+- Spec: .claude/dev-workflow/story/{story-dir}/spec.md
+- Plan: .claude/dev-workflow/story/{story-dir}/plan.md
+- Review: .claude/dev-workflow/story/{story-dir}/review.md
 
 ### After This Plan Completes
 Continue resolving remaining review items in review.md.
@@ -316,7 +316,7 @@ For Task (with plan):
 **Work level**: Task
 **Documents**:
 - Plan: {path to plan file}
-- Review: .claude/dev-workflow/task/{name}/review.md
+- Review: .claude/dev-workflow/task/{task-dir}/review.md
 
 ### After This Plan Completes
 Continue resolving remaining review items in review.md.
@@ -330,7 +330,7 @@ For Task (no plan):
 **Phase**: User-Review
 **Work level**: Task (no plan)
 **Documents**:
-- Review: .claude/dev-workflow/task/{branch-name}/review.md
+- Review: .claude/dev-workflow/task/{task-dir}/review.md
 
 ### After This Plan Completes
 Continue resolving remaining review items in review.md.
@@ -469,13 +469,13 @@ post-task
 ## Next Session
 
 **Reference** (Story):
-- `.claude/dev-workflow/story/{name}/spec.md`
-- `.claude/dev-workflow/story/{name}/plan.md`
-- `.claude/dev-workflow/story/{name}/review.md`
+- `.claude/dev-workflow/story/{story-dir}/spec.md`
+- `.claude/dev-workflow/story/{story-dir}/plan.md`
+- `.claude/dev-workflow/story/{story-dir}/review.md`
 
 **Reference** (Task):
 - Plan file (path from review.md's `## Related Files`)
-- `.claude/dev-workflow/task/{name}/review.md`
+- `.claude/dev-workflow/task/{task-dir}/review.md`
 
 **Next phase** (depends on review.md Phase):
 

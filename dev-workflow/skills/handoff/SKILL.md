@@ -116,7 +116,7 @@ Generate the handoff prompt and output it in a fenced code block that the user c
 #### Determine Document Path
 
 The path argument for `/resume-work` should be the most advanced document:
-- If Task: use path to `review.md` (e.g., `.claude/dev-workflow/task/{name}/review.md`)
+- If Task: use path to `review.md` (e.g., `.claude/dev-workflow/task/{task-dir}/review.md`)
 - If `plan.md` exists: use path to `plan.md`
 - Else if `spec.md` exists: use path to `spec.md`
 - Else if `epic.md` exists: use path to `epic.md`

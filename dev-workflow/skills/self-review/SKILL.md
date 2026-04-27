@@ -21,7 +21,7 @@ Comprehensive review of implementation through specialized reviewers. The review
 
 ## Input
 
-- **Story**: Spec at `.claude/dev-workflow/story/{name}/spec.md` + Plan at `.claude/dev-workflow/story/{name}/plan.md`
+- **Story**: Spec at `.claude/dev-workflow/story/{story-dir}/spec.md` + Plan at `.claude/dev-workflow/story/{story-dir}/plan.md`
 - **Task (with plan)**: Active Claude Code plan file (from `.claude/plans/`)
 - **Task (no plan)**: Git diff of current branch changes (no plan file required)
 
@@ -29,7 +29,7 @@ Comprehensive review of implementation through specialized reviewers. The review
 
 ### 0. Determine Work Level
 
-1. Check if `.claude/dev-workflow/story/{name}/spec.md` exists for any `{name}`
+1. Check if `.claude/dev-workflow/story/*/spec.md` exists (glob match)
    - If found → **Story flow** (proceed to Step 1)
 2. If not found → **Task flow**
    - Identify the active plan file: Glob `.claude/plans/*.md` and find the plan with `**Work level**: Task` in its `## Workflow Context` section
@@ -146,8 +146,8 @@ For Story:
 **Phase**: Self-Review
 **Work level**: Story
 **Documents**:
-- Spec: .claude/dev-workflow/story/{name}/spec.md
-- Plan: .claude/dev-workflow/story/{name}/plan.md
+- Spec: .claude/dev-workflow/story/{story-dir}/spec.md
+- Plan: .claude/dev-workflow/story/{story-dir}/plan.md
 
 ### After This Plan Completes
 Re-run self-review to verify fixes are effective.
@@ -173,7 +173,7 @@ For Task (no plan):
 **Phase**: Self-Review
 **Work level**: Task (no plan)
 **Documents**:
-- Review: .claude/dev-workflow/task/{branch-name}/review.md
+- Review: .claude/dev-workflow/task/{task-dir}/review.md
 
 ### After This Plan Completes
 Re-run self-review to verify fixes are effective.
@@ -185,7 +185,7 @@ When all results are PASS or NEEDS REVIEW (no FAIL), create review.md for the up
 
 #### Story Flow
 
-1. Check for existing `.claude/dev-workflow/story/{name}/review.md` — if it exists, ask user before overwriting
+1. Check for existing `.claude/dev-workflow/story/{story-dir}/review.md` — if it exists, ask user before overwriting
 2. Read `references/review-template.md`
 3. Fill in the template:
    - **Title**: From spec.md title
@@ -194,12 +194,13 @@ When all results are PASS or NEEDS REVIEW (no FAIL), create review.md for the up
    - **Review Items**: Empty (no user feedback yet)
    - **Phase**: `COLLECTING FEEDBACK`
    - **Resolved**: `0 / 0`
-4. Write to `.claude/dev-workflow/story/{name}/review.md`
+4. Write to `.claude/dev-workflow/story/{story-dir}/review.md`
 
 #### Task Flow (with plan)
 
 1. Derive task name from plan file's `# Plan: {name}` title (convert to kebab-case)
-2. Check for existing `.claude/dev-workflow/task/{name}/review.md` — if it exists, ask user before overwriting
+2. Prepend today's date: `{yyyy-mm-dd}-{task-name}`
+3. Check for existing `.claude/dev-workflow/task/{yyyy-mm-dd}-{task-name}/review.md` — if it exists, ask user before overwriting
 3. Read `references/review-template.md`
 4. Fill in the template:
    - **Title**: From plan file title
@@ -208,14 +209,14 @@ When all results are PASS or NEEDS REVIEW (no FAIL), create review.md for the up
    - **Review Items**: Empty (no user feedback yet)
    - **Phase**: `COLLECTING FEEDBACK`
    - **Resolved**: `0 / 0`
-5. Write to `.claude/dev-workflow/task/{name}/review.md`
+6. Write to `.claude/dev-workflow/task/{yyyy-mm-dd}-{task-name}/review.md`
 
 #### Task Flow (no plan)
 
 Follow `references/review-init-guide.md` to resolve metadata:
 
-1. Derive task name from git branch name (remove prefix, kebab-case)
-2. Check for existing `.claude/dev-workflow/task/{branch-name}/review.md` — if it exists, ask user before overwriting
+1. Derive directory name from git branch: replace `/` with `-`, prepend today's date as `{yyyy-mm-dd}-{branch-with-dashes}`
+2. Check for existing `.claude/dev-workflow/task/{task-dir}/review.md` — if it exists, ask user before overwriting
 3. Read `references/review-template.md`
 4. Fill in the template:
    - **Title**: From branch name (prefix removed)
@@ -224,7 +225,7 @@ Follow `references/review-init-guide.md` to resolve metadata:
    - **Review Items**: Empty (no user feedback yet)
    - **Phase**: `COLLECTING FEEDBACK`
    - **Resolved**: `0 / 0`
-5. Write to `.claude/dev-workflow/task/{branch-name}/review.md`
+5. Write to `.claude/dev-workflow/task/{task-dir}/review.md`
 
 ### 6. Invoke Handoff
 
@@ -243,8 +244,8 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 ```markdown
 ## Self Review Results
 
-**Spec**: `.claude/dev-workflow/story/{name}/spec.md`
-**Plan**: `.claude/dev-workflow/story/{name}/plan.md`
+**Spec**: `.claude/dev-workflow/story/{story-dir}/spec.md`
+**Plan**: `.claude/dev-workflow/story/{story-dir}/plan.md`
 
 ### 1. Acceptance Criteria Review
 
@@ -364,7 +365,7 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 - [ ] Each FAIL includes actionable fix instruction
 - [ ] Feedback loop continues until no FAIL remains
 - [ ] Ready to proceed to user review (all PASS or only NEEDS REVIEW)
-- [ ] review.md is created at `.claude/dev-workflow/story/{name}/review.md` (Story) or `.claude/dev-workflow/task/{name}/review.md` (Task)
+- [ ] review.md is created at `.claude/dev-workflow/story/{story-dir}/review.md` (Story) or `.claude/dev-workflow/task/{task-dir}/review.md` (Task)
 - [ ] Codex review is invoked via Skill tool (when available)
 - [ ] Codex unavailability does not block self-review
 - [ ] Handoff skill is invoked to generate resume prompt

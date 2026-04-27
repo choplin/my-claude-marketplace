@@ -4,7 +4,7 @@ Shared procedure for creating `review.md` when it does not yet exist. Referenced
 
 ## 1. Determine Work Level
 
-1. Check if `.claude/dev-workflow/story/{name}/spec.md` exists for any `{name}`
+1. Check if `.claude/dev-workflow/story/*/spec.md` exists (glob match)
    - If found → **Story**
 2. If not found → **Task**
    - Search `.claude/plans/*.md` for a file containing `**Work level**: Task` in its `## Workflow Context` section
@@ -16,16 +16,18 @@ Shared procedure for creating `review.md` when it does not yet exist. Referenced
 | Field | Story | Task (with plan) | Task (no plan) |
 |-------|-------|-------------------|----------------|
 | Title | spec.md title (`# {title}`) | Plan file title (`# Plan: {name}`) | Git branch name (prefix removed) |
-| Spec path | `story/{name}/spec.md` | N/A | N/A |
-| Plan path | `story/{name}/plan.md` | Claude Code plan file path | N/A |
-| review.md path | `story/{name}/review.md` | `task/{name}/review.md` | `task/{branch-name}/review.md` |
+| Spec path | `story/{story-dir}/spec.md` | N/A | N/A |
+| Plan path | `story/{story-dir}/plan.md` | Claude Code plan file path | N/A |
+| review.md path | `story/{story-dir}/review.md` | `task/{yyyy-mm-dd}-{name}/review.md` | `task/{task-dir}/review.md` |
 
-### Branch Name Normalization (Task no plan)
+Where `{story-dir}` = `{yyyy-mm-dd}-{prefix}-{story-name}` and `{task-dir}` = `{yyyy-mm-dd}-{branch-with-dashes}`.
+
+### Branch Name to Directory Name (Task no plan)
 
 1. Get current branch: `git branch --show-current`
-2. Remove common prefixes: `feat/`, `fix/`, `refactor/`, `chore/`, `docs/`, `test/`, `build/`
-3. Convert to kebab-case (replace `_` and `/` with `-`, lowercase)
-4. If branch is `main` or `master`: ask the user for a task name instead of proceeding
+2. Replace `/` with `-` (keep the prefix, e.g., `feat/add-auth` → `feat-add-auth`)
+3. Prepend today's date: `{yyyy-mm-dd}-{branch-with-dashes}` (e.g., `2026-04-22-feat-add-auth`)
+4. If branch is `main` or `master`: ask the user for a task name, then prepend today's date
 
 ## 3. Task Plan Discovery
 

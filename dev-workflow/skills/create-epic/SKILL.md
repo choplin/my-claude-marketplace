@@ -57,7 +57,9 @@ For each Story, ask: "Does this require another Story to be completed first?"
 
 ### 4. Create Epic Document
 
-Create `.claude/dev-workflow/epic/{name}/epic.md`:
+**Directory name**: Prepend today's date to the epic name: `{yyyy-mm-dd}-{epic-name}` (e.g., `2026-04-22-auth-overhaul`)
+
+Create `.claude/dev-workflow/epic/{yyyy-mm-dd}-{epic-name}/epic.md`:
 
 ```markdown
 # Epic: {title}
@@ -96,12 +98,13 @@ Identify the first Story with no dependencies and suggest starting create-spec f
 - [ ] Each Story's What is expressible in one sentence
 - [ ] Dependencies between Stories are documented
 - [ ] Next Story to start is identified (one with no dependencies)
+- [ ] Directory name matches `{yyyy-mm-dd}-{epic-name}` format
 
 ## Next Session
 
 After epic is created:
 
-**Reference**: `.claude/dev-workflow/epic/{name}/epic.md`
+**Reference**: `.claude/dev-workflow/epic/{epic-dir}/epic.md` (where `{epic-dir}` = `{yyyy-mm-dd}-{epic-name}`)
 **Next phase**: `create-spec` for first Story (one with no dependencies)
 
 Read the epic file, identify the first Story to implement, and invoke `kickoff` or `create-spec` for that Story.

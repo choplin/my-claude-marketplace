@@ -46,15 +46,17 @@ If no path provided:
 **Scan pattern**:
 ```
 .claude/dev-workflow/
-  ├── story/{work-unit}/
+  ├── story/{yyyy-mm-dd}-{prefix}-{story-name}/
   │     ├── spec.md
   │     ├── plan.md
   │     └── review.md
-  ├── task/{work-unit}/
+  ├── task/{yyyy-mm-dd}-{branch-with-dashes}/
   │     └── review.md (only — plan is a Claude Code plan file)
-  └── epic/{work-unit}/
+  └── epic/{yyyy-mm-dd}-{epic-name}/
         └── epic.md
 ```
+
+**Directory naming**: Directories are prefixed with creation date (`yyyy-mm-dd`) and Story/Task directories match the branch name (with `/` replaced by `-`).
 
 **Note**: For `task/` directories, the plan file is a Claude Code plan (not in the dev-workflow directory). Read `review.md`'s `## Related Files` section to find the plan path.
 
@@ -93,7 +95,7 @@ Assess actual state by:
 | 7 | `epic_next_story` | epic.md with Stories that have "Not Started" status |
 | 8 | `blocked` | Implementation cannot proceed (missing dependencies, etc.) |
 
-**Task directories**: For `.claude/dev-workflow/task/{name}/`, the only local file is `review.md`. Use its Phase value for state evaluation (same logic as Story: priorities 1-2). If no review.md exists in a Task directory, the Task has no reviewable state yet.
+**Task directories**: For `.claude/dev-workflow/task/{task-dir}/`, the only local file is `review.md`. Use its Phase value for state evaluation (same logic as Story: priorities 1-2). If no review.md exists in a Task directory, the Task has no reviewable state yet.
 
 ### Phase 4: Gap Analysis
 
@@ -211,8 +213,8 @@ If you use EnterPlanMode during implementation, include a `## dev-workflow Conte
 **Phase**: Implementation
 **Work level**: Story
 **Documents**:
-- Spec: .claude/dev-workflow/story/{name}/spec.md
-- Plan: .claude/dev-workflow/story/{name}/plan.md
+- Spec: .claude/dev-workflow/story/{story-dir}/spec.md
+- Plan: .claude/dev-workflow/story/{story-dir}/plan.md
 
 ### After This Plan Completes
 Continue with remaining plan.md steps, updating Progress.
