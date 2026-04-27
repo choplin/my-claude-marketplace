@@ -25,9 +25,9 @@ When using draft PRs for bot reviews (e.g., Copilot), review comments arrive on 
 ### 1. Verify Prerequisites
 
 1. **Find review.md**: Look for `review.md` at:
-   - `.claude/dev-workflow/story/{name}/review.md`
-   - `.claude/dev-workflow/task/{name}/review.md`
-   - `.claude/dev-workflow/{name}/review.md` (legacy fallback)
+   - `.claude/dev-workflow/story/*/review.md`
+   - `.claude/dev-workflow/task/*/review.md`
+
    - If not found: **auto-create** review.md using `references/review-init-guide.md`:
      - Follow the guide to determine work level (Story / Task with plan / Task no plan)
      - Resolve metadata and create review.md at the appropriate path
