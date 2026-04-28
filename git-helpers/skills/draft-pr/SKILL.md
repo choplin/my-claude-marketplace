@@ -49,7 +49,7 @@ Also check for multiple templates in `.github/PULL_REQUEST_TEMPLATE/` directory.
 ### 4. Create Draft PR
 
 - Run `gh pr create --draft`
-- Title: generate from commit messages and change summary (in English)
+- Title: use conventional commit format `type(scope): description` (in English)
 - Body: use the PR template if found (step 2), otherwise use default format
 
 ### 5. Report Result
