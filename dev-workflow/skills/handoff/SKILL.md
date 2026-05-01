@@ -73,7 +73,7 @@ Evaluate in priority order:
 
 **How to check review.md Phase**:
 - Read `review.md` and find the line matching `- **Phase**: {value}`
-- Extract the value (COLLECTING FEEDBACK, READY FOR IMPLEMENTATION, IMPLEMENTING, or LGTM)
+- Extract the value (REVIEWING, LGTM, or legacy values: COLLECTING FEEDBACK, READY FOR IMPLEMENTATION, IMPLEMENTING)
 
 **How to check plan.md Progress**:
 - Read `plan.md` and find the `## Progress` section

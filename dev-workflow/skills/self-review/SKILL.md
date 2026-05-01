@@ -192,7 +192,8 @@ When all results are PASS or NEEDS REVIEW (no FAIL), create review.md for the up
    - **Related Files**: Actual spec and plan paths
    - **Self-Review Results**: Aggregated review result table from Step 2
    - **Review Items**: Empty (no user feedback yet)
-   - **Phase**: `COLLECTING FEEDBACK`
+   - **Phase**: `REVIEWING`
+   - **Mode**: `ITERATIVE`
    - **Resolved**: `0 / 0`
 4. Write to `.claude/dev-workflow/story/{story-dir}/review.md`
 
@@ -207,7 +208,8 @@ When all results are PASS or NEEDS REVIEW (no FAIL), create review.md for the up
    - **Related Files**: Plan path only (no Spec)
    - **Self-Review Results**: Completion Criteria + Code Quality results only (no Acceptance Criteria / Plan Compliance rows)
    - **Review Items**: Empty (no user feedback yet)
-   - **Phase**: `COLLECTING FEEDBACK`
+   - **Phase**: `REVIEWING`
+   - **Mode**: `ITERATIVE`
    - **Resolved**: `0 / 0`
 6. Write to `.claude/dev-workflow/task/{yyyy-mm-dd}-{task-name}/review.md`
 
@@ -223,7 +225,8 @@ Follow `references/review-init-guide.md` to resolve metadata:
    - **Related Files**: No Spec or Plan lines (add comment `<!-- No plan file associated -->`)
    - **Self-Review Results**: Code Quality results only (no Completion Criteria rows)
    - **Review Items**: Empty (no user feedback yet)
-   - **Phase**: `COLLECTING FEEDBACK`
+   - **Phase**: `REVIEWING`
+   - **Mode**: `ITERATIVE`
    - **Resolved**: `0 / 0`
 5. Write to `.claude/dev-workflow/task/{task-dir}/review.md`
 
@@ -372,4 +375,4 @@ The user can then copy the prompt, `/clear`, and paste to start user-review in a
 
 ## Next Session
 
-After self-review completes (all PASS or NEEDS REVIEW only), review.md is created automatically and handoff is invoked. The user copies the generated prompt, clears the session, and pastes it. resume-work detects `in_review` state and dispatches to user-review, which finds existing review.md at Step 0 and begins from `COLLECTING FEEDBACK` phase.
+After self-review completes (all PASS or NEEDS REVIEW only), review.md is created automatically and handoff is invoked. The user copies the generated prompt, clears the session, and pastes it. resume-work detects `in_review` state and dispatches to user-review, which finds existing review.md at Step 0 and begins from `REVIEWING` phase.

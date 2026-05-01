@@ -14,30 +14,52 @@ Facilitate structured interaction between AI and user during the review phase. T
 Prevent AI from acting unpredictably during user review by establishing clear interaction patterns:
 
 1. **Present review summary**: Show self-review results and NEEDS REVIEW items
-2. **Collect all feedback first**: Record approach for each item without implementing
-3. **Implement in batch**: Execute all recorded approaches at once after user signals completion
-4. **Obtain explicit approval**: Proceed to post-task only after LGTM
+2. **Classify and propose approach**: For each feedback item, classify and propose a concrete approach
+3. **Obtain approach agreement**: Discuss the approach with the user and get explicit agreement before implementing
+4. **Implement after agreement**: Execute changes only after user agrees to the approach
+5. **Obtain explicit approval**: Proceed to post-task only after LGTM
 
 ## Problem This Skill Solves
 
 Without this skill, AI behavior during user review is ad-hoc:
-- AI implements changes after each feedback item, causing context switches
-- Plan mode is invoked per item, bloating the session
-- User cannot finish giving all feedback before implementation starts
+- AI implements changes without discussing the approach with the user, causing rework when the approach was wrong
+- Rigid batch processing forces users to give all feedback before any implementation starts, which doesn't match the natural "comment → discuss → fix → next" rhythm
+- User cannot see or influence the AI's planned approach before code changes happen
 
 These issues cause rework and frustration.
 
-## Two-Phase Design
+## Item-Level State Machine
 
-| Phase | Purpose | AI Action |
-|-------|---------|-----------|
-| **Collection Phase** | Gather all feedback, record approaches | Classify, dig if needed, record WHERE+WHAT — do NOT implement |
-| **Implementation Phase** | Execute all recorded approaches at once | Implement each item, report results |
+Instead of managing phases at the review level, each feedback item has its own lifecycle:
 
-**Phase transition signals**:
-- **Collection → Implementation**: User says "以上", "done", "完了", etc.
-- **Implementation → Post-task**: User says "LGTM", "OK", "Looks good"
-- **Implementation → Collection** (loop back): User provides additional feedback after implementation
+```
+OPEN → APPROACH PROPOSED → APPROACH AGREED → IMPLEMENTING → RESOLVED
+                                                           → SKIPPED
+```
+
+| Status | Meaning |
+|--------|---------|
+| `OPEN` | Feedback received, not yet analyzed |
+| `APPROACH PROPOSED` | AI proposed approach, awaiting user agreement |
+| `APPROACH AGREED` | User agreed to approach, ready for implementation |
+| `IMPLEMENTING` | Currently being implemented |
+| `RESOLVED` | Implementation complete |
+| `SKIPPED` | User chose to skip this item |
+
+**Review-level state**: `REVIEWING` (active review) or `LGTM` (approved).
+
+**Mode**: `ITERATIVE` (default) or `BATCH` (opt-in).
+
+| Mode | Default | Trigger | Behavior |
+|------|---------|---------|----------|
+| **ITERATIVE** | ✓ | Default / "1つずつ" | Implement immediately after each approach agreement, then prompt for next feedback |
+| **BATCH** | | "まとめて" / "batch" | Record approach agreements only; implement all at once when user says "以上" |
+
+**Transition signals**:
+- **"以上" / "done"**: Iterative — no more feedback (check for unresolved items). Batch — trigger batch implementation.
+- **"LGTM"**: Approve and proceed to post-task
+- **"まとめて" / "batch"**: Switch to Batch mode
+- **"1つずつ" / "iterative"**: Switch to Iterative mode (default)
 
 ## Input
 
@@ -56,15 +78,18 @@ Before starting, check for existing review state:
    - `.claude/dev-workflow/story/{story-dir}/review.md` (Story)
    - `.claude/dev-workflow/task/{task-dir}/review.md` (Task — includes both "with plan" and "no plan")
 2. If **review.md exists**, read it and resume based on Phase:
-   - `COLLECTING FEEDBACK`: Show summary of recorded items (if any) and current state — including any PR-imported items (with `Source` field) that are `OPEN` or `APPROACH RECORDED` — then wait for next feedback
-   - `READY FOR IMPLEMENTATION`: Show item summary, then proceed to Implementation Phase (Step 5)
-   - `IMPLEMENTING`: Find next APPROACH RECORDED item and continue Implementation Phase (Step 5)
+   - `REVIEWING`: Show summary of items and their states — including any items that are `OPEN` or `APPROACH PROPOSED` (re-present their approach for agreement) — then wait for next feedback
    - `LGTM`: Proceed to post-task
+   - **Backward compatibility**: Map old phase values to current phases:
+     - `COLLECTING FEEDBACK` → treat as `REVIEWING`
+     - `READY FOR IMPLEMENTATION` → treat as `REVIEWING`
+     - `IMPLEMENTING` → treat as `REVIEWING`
+   - **Backward compatibility for item status**: Treat `APPROACH RECORDED` as `APPROACH PROPOSED` (approach exists but needs user agreement)
 3. If **review.md does not exist**, continue to step 1 (normal flow)
 
 ### 1. Present Review Summary (Independent Entry Point)
 
-> **Note**: In the normal workflow, self-review creates review.md before invoking handoff. Step 0 detects the existing review.md and resumes from `COLLECTING FEEDBACK`, skipping this step entirely. Step 1 serves as an independent entry point for when user-review is invoked directly without prior self-review (e.g., manual invocation, skipping self-review).
+> **Note**: In the normal workflow, self-review creates review.md before invoking handoff. Step 0 detects the existing review.md and resumes from `REVIEWING`, skipping this step entirely. Step 1 serves as an independent entry point for when user-review is invoked directly without prior self-review (e.g., manual invocation, skipping self-review).
 
 If review.md does not exist (Step 0 found nothing):
 
@@ -73,7 +98,8 @@ If review.md does not exist (Step 0 found nothing):
    - Resolve metadata (title, paths) according to the work level
    - Use `references/review-template.md` to create review.md at the resolved path
    - Self-Review Results: Use SKIPPED row (`| - | Self-review | SKIPPED | Self-review was not performed |`)
-   - Set Phase to `COLLECTING FEEDBACK`
+   - Set Phase to `REVIEWING`
+   - Set Mode to `ITERATIVE`
    - Set Resolved to `0 / 0`
 2. **Present** the review summary to the user:
 
@@ -98,11 +124,9 @@ If review.md does not exist (Step 0 found nothing):
 
 ### Request
 
-Please review the implementation and provide feedback:
+Please review the implementation and provide feedback.
 - **LGTM**: Approve and proceed to post-task
 - **Feedback**: Point out issues to address
-
-When you've finished giving feedback, say "以上" to start implementation.
 ```
 
 ### 2. Wait for User Feedback
@@ -135,27 +159,28 @@ This test emerged from analyzing past failures: AI misidentified modification lo
 
 Either results in rework. Both must pass for immediate approach recording.
 
-| Classification | Test Result | Collection Phase Action | Rationale |
-|----------------|-------------|------------------------|-----------|
+| Classification | Test Result | Action | Rationale |
+|----------------|-------------|--------|-----------|
 | **LGTM** | N/A | Proceed to post-task (or confirm pending items first) | User explicitly approved |
-| **"以上" / "done"** | N/A | Transition to Implementation Phase | User finished giving feedback |
-| **Minor** | Both pass | Record approach immediately | No ambiguity = safe to record |
-| **Complex** | Either fails | dig → record approach | Ambiguity = clarify first |
-| **Design Change** | Requires new/changed spec criteria | Record approach (spec changes needed) | Cannot implement within current spec |
+| **"以上" / "done"** | N/A | Iterative: check for unresolved items. Batch: trigger batch implementation | User finished giving feedback |
+| **Mode switch** | N/A | "まとめて" → Batch mode. "1つずつ" → Iterative mode | User changed processing mode |
+| **Minor** | Both pass | Propose approach to user | No ambiguity = safe to propose |
+| **Complex** | Either fails | dig → propose approach to user | Ambiguity = clarify first |
+| **Design Change** | Requires new/changed spec criteria | Propose approach (with spec changes) to user | Cannot implement within current spec |
 
-**Note on PR-imported items**: Items with a `Source` field (imported via `import-pr-comments`) are pre-classified at import time. They follow the same Collection/Implementation flow as user-provided feedback — no special handling required.
+**Note on PR-imported items**: Items with a `Source` field (imported via `import-pr-comments`) are pre-classified at import time. They follow the same approach-proposal-and-agreement flow as user-provided feedback — no special handling required.
 
-### 4. Handle Each Classification (Collection Phase)
+### 4. Handle Each Classification
 
-**Core rule: Do NOT implement any code changes in this phase. Only record approaches.**
+**Core rule: Do NOT implement any code changes until the user agrees to the proposed approach.**
 
 #### LGTM (Approval)
 
 User signals approval with phrases like "LGTM", "OK", "Looks good", "Approved".
 
 **Action**:
-1. If APPROACH RECORDED items exist: Ask user "There are {N} recorded items not yet implemented. Implement them first, or skip and approve as-is?"
-   - If implement: Transition to Implementation Phase (Step 5)
+1. If items with Status `APPROACH PROPOSED` or `APPROACH AGREED` exist: Ask user "There are {N} items with pending approaches. Implement them first, or skip and approve as-is?"
+   - If implement: Process each pending item (propose/agree/implement as needed)
    - If skip: Continue to step 2
 2. Update review.md: Set Phase to `LGTM`
 3. Proceed to post-task skill
@@ -164,21 +189,17 @@ User signals approval with phrases like "LGTM", "OK", "Looks good", "Approved".
 
 User signals they have finished giving all feedback.
 
-**Action**:
-1. Update review.md: Set Phase to `READY FOR IMPLEMENTATION`
-2. Present item summary:
-   ```markdown
-   ## Feedback Summary
+**Action (Iterative mode)**:
+1. Check for unresolved items:
+   - Items with `APPROACH PROPOSED`: Re-present each approach for agreement
+   - Items with `OPEN`: Propose approaches for each
+2. If no unresolved items: Present completion summary and wait for LGTM or additional feedback
 
-   | # | Classification | Approach |
-   |---|----------------|----------|
-   | 1 | Minor | {brief approach} |
-   | 2 | Complex | {brief approach} |
-
-   Proceeding to implementation.
-   ```
-3. Update review.md: Set Phase to `IMPLEMENTING`
-4. Proceed to Implementation Phase (Step 5)
+**Action (Batch mode)**:
+1. Check for items needing attention:
+   - Items with `APPROACH PROPOSED`: Ask user to agree or skip before proceeding
+   - Items with `OPEN`: Propose approaches for each and get agreement
+2. Once all actionable items are `APPROACH AGREED`: Proceed to Batch Implementation (Step 5)
 
 #### Minor Feedback
 
@@ -191,13 +212,36 @@ Feedback where both location and content are unambiguous.
 
 **Action**:
 1. Add Review Item to review.md (Status: OPEN, Classification: Minor)
-2. Record approach (WHERE + WHAT):
+2. Formulate approach (WHERE + WHAT)
+3. Present approach to user:
    ```markdown
-   - **Approach**: WHERE: {file:location} / WHAT: {specific change}
+   **Item {N}** (Minor): {feedback summary}
+   **Approach**: WHERE: {file:location} / WHAT: {specific change}
+
+   Agree? (or suggest changes / "skip")
    ```
-3. Update Review Item in review.md: Status → `APPROACH RECORDED`, fill Approach
-4. Report: "Recorded: {description}. Any other feedback? Say '以上' when done."
-5. Wait for next input
+4. Update Review Item in review.md: Status → `APPROACH PROPOSED`, fill Approach
+5. Wait for user response:
+   - **Agreement** ("OK", "やって", "それで", "go ahead"): Update to `APPROACH AGREED`. In Iterative mode → implement immediately (Step 4a). In Batch mode → report "Recorded. Will implement with other items."
+   - **Modification**: Revise approach based on feedback, re-present, stay at `APPROACH PROPOSED`
+   - **Rejection** ("skip", "やめて"): Update to `SKIPPED`
+6. After response handled: Wait for next feedback
+
+##### 4a. Iterative Implementation (within Step 4)
+
+Triggered immediately after approach agreement in Iterative mode:
+
+1. Update Review Item: Status → `IMPLEMENTING`
+2. Implement the change according to the agreed Approach
+3. Update Review Item: Status → `RESOLVED`, fill Resolution
+4. Update review.md Resolved counter
+5. Report:
+   ```markdown
+   Item {N} resolved: {resolution}.
+
+   Any more feedback? Say "以上" when done, or "LGTM" to approve.
+   ```
+6. Wait for next input
 
 #### Complex Feedback
 
@@ -211,18 +255,13 @@ Feedback where location OR content is ambiguous.
 
 **Action**:
 1. Add Review Item to review.md (Status: OPEN, Classification: Complex)
-2. Acknowledge: "I'd like to clarify the intent before recording the approach."
+2. Acknowledge: "I'd like to clarify the intent before proposing an approach."
 3. Use dig skill to explore:
    - **Why**: What is the underlying concern?
    - **Where**: Which specific location(s)?
    - **What**: What specific change is expected?
-4. After clarification, record the approach:
-   ```markdown
-   - **Approach**: WHERE: {file:location} / WHAT: {specific change}
-   ```
-5. Update Review Item in review.md: Status → `APPROACH RECORDED`, fill Approach
-6. Report: "Recorded: {description}. Any other feedback? Say '以上' when done."
-7. Wait for next input
+4. After clarification, formulate approach (WHERE + WHAT)
+5. Present approach to user (same as Minor step 3-6)
 
 #### Design Change
 
@@ -255,23 +294,26 @@ For **Task** (check plan file):
 **Action**:
 1. Add Review Item to review.md (Status: OPEN, Classification: Design Change)
 2. Acknowledge: "This feedback suggests changes beyond the current spec."
-3. Record approach with spec change details:
+3. Formulate approach with spec change details
+4. Present approach to user:
    ```markdown
-   - **Approach**: SPEC CHANGE: {which success criteria to add/modify} / WHAT: {implementation changes after spec update}
+   **Item {N}** (Design Change): {feedback summary}
+   **Approach**: SPEC CHANGE: {which success criteria to add/modify} / WHAT: {implementation changes after spec update}
+
+   Agree? (or suggest changes / "skip")
    ```
-4. Update Review Item in review.md: Status → `APPROACH RECORDED`, fill Approach
-5. Report: "Recorded as design change: {description}. Any other feedback? Say '以上' when done."
-6. Wait for next input
+5. Update Review Item: Status → `APPROACH PROPOSED`, fill Approach
+6. Wait for user response (same agreement/modification/rejection flow as Minor)
 
-### 5. Implementation Phase
+### 5. Batch Implementation
 
-**Entry**: Phase is `IMPLEMENTING` (set by completion signal or resumed from review.md).
+**Entry**: Batch mode only. All actionable items are `APPROACH AGREED`. Triggered by "以上" signal in Batch mode.
 
 **Processing order**: Design Change items first (they may affect spec and other items), then remaining items in order.
 
 #### 5a. Design Change Items
 
-For each Design Change item with Status = `APPROACH RECORDED`:
+For each Design Change item with Status = `APPROACH AGREED`:
 
 1. Update Review Item: Status → `IMPLEMENTING`
 2. Invoke create-spec skill to edit the existing spec
@@ -281,10 +323,10 @@ For each Design Change item with Status = `APPROACH RECORDED`:
 
 #### 5b. Minor and Complex Items
 
-For each remaining item with Status = `APPROACH RECORDED`:
+For each remaining item with Status = `APPROACH AGREED`:
 
 1. Update Review Item: Status → `IMPLEMENTING`
-2. Implement the change according to the recorded Approach
+2. Implement the change according to the agreed Approach
 3. Update Review Item: Status → `RESOLVED`, fill Resolution
 4. Update review.md Resolved counter
 
@@ -295,7 +337,7 @@ If you use EnterPlanMode during implementation of review items, include a `## de
 For Story:
 ```markdown
 ## dev-workflow Context
-**Active skill**: user-review (Implementation Phase)
+**Active skill**: user-review (Implementation)
 **Phase**: User-Review
 **Work level**: Story
 **Documents**:
@@ -311,7 +353,7 @@ After all items resolved: present implementation summary to user.
 For Task (with plan):
 ```markdown
 ## dev-workflow Context
-**Active skill**: user-review (Implementation Phase)
+**Active skill**: user-review (Implementation)
 **Phase**: User-Review
 **Work level**: Task
 **Documents**:
@@ -326,7 +368,7 @@ After all items resolved: present implementation summary to user.
 For Task (no plan):
 ```markdown
 ## dev-workflow Context
-**Active skill**: user-review (Implementation Phase)
+**Active skill**: user-review (Implementation)
 **Phase**: User-Review
 **Work level**: Task (no plan)
 **Documents**:
@@ -339,7 +381,7 @@ After all items resolved: present implementation summary to user.
 
 #### 5c. Completion
 
-After all items are resolved:
+After all items are resolved (both Iterative and Batch modes reach this point):
 
 1. Present implementation summary:
    ```markdown
@@ -354,7 +396,7 @@ After all items are resolved:
    ```
 2. Wait for user response:
    - **LGTM**: Update Phase to `LGTM`, proceed to post-task
-   - **Additional feedback**: Update Phase to `COLLECTING FEEDBACK`, return to Collection Phase (Step 4)
+   - **Additional feedback**: Return to feedback handling (Step 4)
 
 ## Output Format
 
@@ -365,34 +407,35 @@ After all items are resolved:
 
 [Summary content as specified above]
 
-Awaiting your feedback. Say "以上" when you've finished giving all feedback to start implementation.
+Awaiting your feedback.
 ```
 
-### After Recording Minor Feedback
+### After Proposing Approach
 
 ```markdown
-Recorded: {description of approach}.
+**Item {N}** ({classification}): {feedback summary}
+**Approach**: WHERE: {file:location} / WHAT: {specific change}
 
-Any other feedback? Say "以上" when done to start implementation.
+Agree? (or suggest changes / "skip")
 ```
 
-### After Recording Complex Feedback (post-dig)
+### After Iterative Implementation
 
 ```markdown
-Recorded: {description of clarified approach}.
+Item {N} resolved: {resolution}.
 
-Any other feedback? Say "以上" when done to start implementation.
+Any more feedback? Say "以上" when done, or "LGTM" to approve.
 ```
 
-### After Recording Design Change
+### After Recording Approach (Batch Mode)
 
 ```markdown
-Recorded as design change: {description}.
+Recorded: {description of approach}. Will implement with other items when you say "以上".
 
-Any other feedback? Say "以上" when done to start implementation.
+Any other feedback?
 ```
 
-### After Implementation Complete
+### After Batch Implementation Complete
 
 ```markdown
 ## Implementation Complete
@@ -420,22 +463,21 @@ This enables handling each feedback item in a separate session when the context 
 
 - [ ] Review summary presented: Response contains "## Review Summary" section with spec path, self-review results, and NEEDS REVIEW items
 - [ ] No autonomous action after summary: Response ends without implementation and without "Should I proceed?" question
-- [ ] Collection Phase and Implementation Phase are clearly separated: No code changes during Collection Phase
-- [ ] Minor feedback identified correctly: When both WHERE and WHAT are unambiguous, approach is recorded without implementation
-- [ ] Minor feedback handled correctly: After recording, response includes "Recorded:" and prompts for more feedback
-- [ ] Complex feedback identified correctly: When either WHERE or WHAT is ambiguous, dig skill is invoked before recording approach
-- [ ] Complex feedback handled correctly: After dig, approach is recorded and response prompts for more feedback
+- [ ] Approach always proposed before implementation: For every feedback item, AI presents a concrete approach (WHERE + WHAT) and waits for user agreement
+- [ ] No implementation without agreement: Code changes only occur after user explicitly agrees to the proposed approach (Status reaches `APPROACH AGREED`)
+- [ ] Minor feedback identified correctly: When both WHERE and WHAT are unambiguous, approach is proposed without excessive questioning
+- [ ] Complex feedback identified correctly: When either WHERE or WHAT is ambiguous, dig skill is invoked before proposing approach
 - [ ] Design change identified correctly: When feedback requires new/changed spec success criteria, recorded as Design Change
-- [ ] Completion signal handled correctly: "以上" triggers transition to Implementation Phase with item summary
-- [ ] Implementation Phase processes all items: All APPROACH RECORDED items are implemented and marked RESOLVED
+- [ ] Iterative mode works: In default mode, each item is implemented immediately after approach agreement
+- [ ] Batch mode works: When user says "まとめて", approaches are recorded and implemented together on "以上"
 - [ ] Explicit LGTM obtained: User explicitly signals approval ("LGTM", "OK", "Looks good") before invoking post-task skill
 
 ### Outcome Criteria
 
 - [ ] User doesn't need to re-explain: Each response directly addresses the feedback without requiring user to clarify what they already said
-- [ ] No premature implementation: Code changes only occur during Implementation Phase, never during Collection Phase
-- [ ] No excessive questioning: For Minor feedback, approach is recorded without asking "Should I proceed?"
-- [ ] Batch implementation: All feedback items are implemented together, not one at a time
+- [ ] No premature implementation: Code changes only occur after user agrees to the proposed approach
+- [ ] No excessive questioning: For Minor feedback, approach is proposed directly without asking "Should I investigate?"
+- [ ] Approach discussion happens naturally: User can modify, reject, or approve approaches through normal conversation
 
 ## Integration with Workflow
 
@@ -447,10 +489,10 @@ self-review (all PASS or NEEDS REVIEW)
     ↓ resume-work detects in_review → dispatches user-review
     ↓
 user-review (this skill)
-    ↓ Step 0: existing review.md found → resume COLLECTING FEEDBACK
-    ↓ Collection Phase (record approaches)
-    ↓ "以上" signal
-    ↓ Implementation Phase (batch implement)
+    ↓ Step 0: existing review.md found → resume REVIEWING
+    ↓ feedback → classify → propose approach → agree → implement (iterative)
+    ↓ (repeat for each item)
+    ↓ "以上" → completion check
     ↓ (LGTM obtained)
 post-task
 ```
@@ -459,9 +501,10 @@ post-task
 
 | Anti-pattern | Why It's Wrong | Correct Behavior |
 |--------------|----------------|------------------|
-| Implementing during Collection Phase | Causes context switches, bloats session | Record approach only, implement in batch |
-| Asking "Proceed with this fix?" per item | Interrupts feedback flow | Record and move on; implement all at once |
-| Implementing immediately on any feedback | Skips clarification for complex cases | Classify first, then record approach |
+| Implementing without approach agreement | Wrong approach causes rework | Always propose approach and wait for explicit agreement |
+| Forcing batch mode on all users | Doesn't match natural review rhythm | Default to iterative; batch is opt-in via "まとめて" |
+| Auto-implementing after proposing approach | User hasn't agreed yet | Wait for explicit agreement signal |
+| Silently recording approach without showing user | User can't influence the approach | Always present approach for discussion |
 | Assuming LGTM without explicit signal | User may have more feedback | Wait for explicit approval |
 | Asking "Should I proceed?" after summary | User review is for feedback, not approval of summary | Wait silently for feedback |
 | Proposing multiple interpretations | Adds cognitive load to user | Use dig to narrow down |
@@ -481,8 +524,7 @@ post-task
 
 | review.md Phase | Next phase |
 |-----------------|------------|
-| `COLLECTING FEEDBACK` | Continue `user-review` (resume Collection Phase from review.md) |
-| `READY FOR IMPLEMENTATION` / `IMPLEMENTING` | Continue `user-review` (resume Implementation Phase from review.md) |
+| `REVIEWING` | Continue `user-review` (resume from review.md item states) |
 | `LGTM` | `post-task` |
 
 Read spec, plan, and review.md, then invoke the appropriate skill.

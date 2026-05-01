@@ -60,6 +60,7 @@ The content of the Self-Review Results table depends on which skill creates `rev
      - **Task (no plan)**: No Related Files entries (remove both Spec and Plan lines, or add a comment `<!-- No plan file associated -->`)
    - **Self-Review Results**: Based on creator (see step 4)
    - **Review Items**: Empty (no feedback yet)
-   - **Phase**: `COLLECTING FEEDBACK`
+   - **Phase**: `REVIEWING`
+   - **Mode**: `ITERATIVE`
    - **Resolved**: `0 / 0`
 4. Write to the resolved `review.md` path

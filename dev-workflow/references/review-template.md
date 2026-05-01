@@ -22,7 +22,7 @@
 
 ### Item {N}: {feedback summary}
 
-- **Status**: OPEN | APPROACH RECORDED | IMPLEMENTING | RESOLVED
+- **Status**: OPEN | APPROACH PROPOSED | APPROACH AGREED | IMPLEMENTING | RESOLVED | SKIPPED
 - **Classification**: Minor | Complex | Design Change
 - **Source**: {origin - e.g., "PR #42 - @copilot (inline)" — omit for direct user feedback}
 - **Feedback**: {original feedback}
@@ -32,5 +32,6 @@
 
 ## Status
 
-- **Phase**: COLLECTING FEEDBACK
+- **Phase**: REVIEWING
+- **Mode**: ITERATIVE
 - **Resolved**: 0 / 0

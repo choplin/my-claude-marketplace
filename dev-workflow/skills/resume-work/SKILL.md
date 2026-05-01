@@ -67,8 +67,8 @@ Read the selected document(s) and extract:
 - **Spec path**: If exists (Story/Epic only)
 - **Plan path**: If exists (Story: `plan.md` in dev-workflow dir; Task: from review.md `## Related Files`)
 - **Review path**: If exists
-- **Review Phase**: Phase value from review.md (COLLECTING FEEDBACK / READY FOR IMPLEMENTATION / IMPLEMENTING / LGTM)
-- **Review Items**: Count of OPEN, APPROACH RECORDED, IMPLEMENTING, and RESOLVED items
+- **Review Phase**: Phase value from review.md (REVIEWING / LGTM)
+- **Review Items**: Count of OPEN, APPROACH PROPOSED, APPROACH AGREED, IMPLEMENTING, RESOLVED, and SKIPPED items
 - **Branch**: Name and Base from spec.md `## Branch` section (if exists)
 - **Why**: Background and motivation
 - **What**: Implementation target and success criteria
@@ -87,7 +87,7 @@ Assess actual state by:
 | Priority | State | Condition |
 |----------|-------|-----------|
 | 1 | `review_complete` | review.md exists and Phase = LGTM |
-| 2 | `in_review` | review.md exists and Phase ≠ LGTM (COLLECTING FEEDBACK, READY FOR IMPLEMENTATION, or IMPLEMENTING) |
+| 2 | `in_review` | review.md exists and Phase ≠ LGTM (REVIEWING, or legacy values: COLLECTING FEEDBACK, READY FOR IMPLEMENTATION, IMPLEMENTING) |
 | 3 | `potentially_complete` | plan.md exists and all Progress items are `[x]` |
 | 4 | `in_progress` | plan.md exists and some Progress items are `[x]` |
 | 5 | `planned` | plan.md exists but no Progress items are `[x]` |
@@ -147,8 +147,8 @@ Output structured report:
 | 3. [description] | ⬜ Pending | |
 
 ### Review Status (if review.md exists)
-- **Phase**: [COLLECTING FEEDBACK / READY FOR IMPLEMENTATION / IMPLEMENTING / LGTM]
-- **Items**: [N OPEN, N APPROACH RECORDED, N IMPLEMENTING, N RESOLVED]
+- **Phase**: [REVIEWING / LGTM]
+- **Items**: [N OPEN, N APPROACH PROPOSED, N APPROACH AGREED, N IMPLEMENTING, N RESOLVED, N SKIPPED]
 
 ### Gap Analysis
 [Summary of differences between plan and current state]

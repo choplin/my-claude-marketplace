@@ -13,7 +13,7 @@ Import review comments from a GitHub Pull Request into `review.md`, classifying 
 
 ## Purpose
 
-When using draft PRs for bot reviews (e.g., Copilot), review comments arrive on the PR rather than in the dev-workflow review process. This skill bridges the gap by importing those comments into `review.md` so they can be processed through the standard `user-review` Collection/Implementation flow.
+When using draft PRs for bot reviews (e.g., Copilot), review comments arrive on the PR rather than in the dev-workflow review process. This skill bridges the gap by importing those comments into `review.md` so they can be processed through the standard `user-review` approach-proposal-and-agreement flow.
 
 ## Input
 
@@ -32,11 +32,12 @@ When using draft PRs for bot reviews (e.g., Copilot), review comments arrive on 
      - Follow the guide to determine work level (Story / Task with plan / Task no plan)
      - Resolve metadata and create review.md at the appropriate path
      - Self-Review Results: Use SKIPPED row (`| - | Self-review | SKIPPED | Self-review was not performed |`)
-     - Set Phase to `COLLECTING FEEDBACK`
+     - Set Phase to `REVIEWING`
 
 2. **Check Phase**: Read review.md and check the Phase value.
-   - `COLLECTING FEEDBACK`: proceed normally
-   - Any other phase: warn the user ("review.md Phase is '{phase}'. Import is intended for COLLECTING FEEDBACK phase. Continue anyway?") and wait for confirmation
+   - `REVIEWING`: proceed normally
+   - Any other phase: warn the user ("review.md Phase is '{phase}'. Import is intended for REVIEWING phase. Continue anyway?") and wait for confirmation
+   - **Backward compatibility**: Treat `COLLECTING FEEDBACK` as `REVIEWING`
 
 3. **Find open PR**: Run `gh pr view --json number,url,state` for the current branch.
    - If no PR or state is not "OPEN"/"DRAFT": stop and report "No open PR found for the current branch."
@@ -68,7 +69,7 @@ Collect all review comments from the PR:
 Apply the **Ambiguity Test** defined in `user-review` skill (see `skills/user-review/SKILL.md` section "Classify Feedback").
 
 Summary for reference (SSoT is user-review):
-- **Minor**: WHERE and WHAT are both unambiguous -> record approach immediately
+- **Minor**: WHERE and WHAT are both unambiguous -> record approach as proposed (awaiting user agreement)
 - **Complex**: Either WHERE or WHAT is ambiguous -> leave OPEN for user-review to dig
 - **Design Change**: Requires new/changed spec success criteria -> leave OPEN
 
@@ -112,7 +113,7 @@ Wait for user confirmation before writing to review.md.
 
    ```markdown
    ### Item {N}: {comment summary}
-   - **Status**: APPROACH RECORDED | OPEN
+   - **Status**: APPROACH PROPOSED | OPEN
    - **Classification**: Minor | Complex | Design Change
    - **Source**: PR #{number} comment:{commentId} - @{author} ({inline|review-body})
    - **Feedback**: {comment body}
@@ -122,7 +123,7 @@ Wait for user confirmation before writing to review.md.
    ```
 
    Field rules:
-   - **Status**: `APPROACH RECORDED` for Minor (approach filled in), `OPEN` for Complex and Design Change
+   - **Status**: `APPROACH PROPOSED` for Minor (approach filled in, awaiting user agreement), `OPEN` for Complex and Design Change
    - **File**: Include only for inline comments (omit entire line for review-body)
    - **Approach**: Fill in for Minor items only (leave empty for Complex/Design Change)
 
@@ -171,25 +172,25 @@ self-review
     ↓ review.md created
     ↓ handoff → /clear → resume-work → user-review
     ↓
-user-review (COLLECTING FEEDBACK)
+user-review (REVIEWING)
     ↓ user creates draft PR
     ↓ bot reviews arrive on PR
     ↓
 import-pr-comments (this skill)
     ↓ comments added to review.md as Review Items
     ↓
-user-review (continues COLLECTING FEEDBACK)
-    ↓ user provides additional feedback or says "以上"
-    ↓ Implementation Phase
+user-review (continues REVIEWING)
+    ↓ propose approach → agree → implement (iterative) for each item
+    ↓ "以上" or LGTM
 
 [Direct invocation — no prior self-review]
 import-pr-comments (this skill)
     ↓ review.md not found → auto-created via review-init-guide.md
     ↓ PR comments imported as Review Items
     ↓
-user-review (COLLECTING FEEDBACK)
-    ↓ user provides additional feedback or says "以上"
-    ↓ Implementation Phase
+user-review (REVIEWING)
+    ↓ propose approach → agree → implement for each item
+    ↓ "以上" or LGTM
 ```
 
 ## Anti-patterns to Avoid
@@ -199,4 +200,4 @@ user-review (COLLECTING FEEDBACK)
 | Duplicating classification logic | Creates drift from user-review SSoT | Reference user-review's Ambiguity Test |
 | Importing without preview | User loses control over what enters review.md | Always show preview and wait for confirmation |
 | Re-importing already-imported comments | Duplicates items in review.md | Track imported IDs in HTML comment metadata |
-| Implementing imported items immediately | Violates Collection/Implementation phase separation | Only classify and record; implementation happens in user-review |
+| Implementing imported items immediately | Bypasses approach-agreement flow in user-review | Only classify and record; approach agreement and implementation happen in user-review |
