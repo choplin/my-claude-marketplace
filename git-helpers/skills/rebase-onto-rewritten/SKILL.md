@@ -36,7 +36,9 @@ Help rebase the current branch onto a base branch that has rewritten its history
    - Show progress during the process
 
 5. **Finalize**:
+   - Before renaming, record the original branch's upstream (`git config branch.<name>.remote` and `branch.<name>.merge`)
    - Rename branches to preserve the original branch name
+   - Restore the upstream tracking to match the original branch (`git branch --set-upstream-to=<original-upstream>`)
    - Delete temporary branch
    - Show final status
 
